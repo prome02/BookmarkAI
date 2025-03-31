@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI智能书签管理器 - 设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h1>AI智能书签管理器 - 设置</h1>
+    
+    <div class="section">
+      <h2>AI设置</h2>
+      <div class="form-group">
+        <label for="aiApiType">AI API类型:</label>
+        <select id="aiApiType" class="form-control">
+          <option value="gemini">Google Gemini API</option>
+          <option value="openai">OpenAI API</option>
+          <option value="deepseek">DeepSeek API</option>
+          <option value="custom">自定义模型</option>
+        </select>
+      </div>
+      
+      <div id="customModelSection" class="form-group" style="display: none;">
+        <label for="customApiEndpoint">API端点:</label>
+        <input type="text" id="customApiEndpoint" placeholder="请输入API端点URL">
+      </div>
+      
+      <div class="form-group">
+        <label for="apiKey">API Key:</label>
+        <input type="password" id="apiKey" placeholder="请输入您的API Key">
+        <button id="testApiBtn" class="btn small">测试连接</button>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>自动化设置</h2>
+      <div class="form-group">
+        <label for="scheduledScans">定期扫描:</label>
+        <select id="scheduledScans">
+          <option value="never">从不</option>
+          <option value="daily">每天</option>
+          <option value="weekly">每周</option>
+          <option value="monthly">每月</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>无效链接管理</h2>
+      <div class="invalid-links">
+        <div class="table-header">
+          <span class="link-title">标题</span>
+          <span class="link-url">URL</span>
+          <span class="link-status">状态</span>
+          <span class="link-action">操作</span>
+        </div>
+        <div id="invalidLinksList" class="links-list">
+          <!-- 无效链接列表将通过JS动态填充 -->
+          <div class="empty-placeholder">尚未扫描无效链接</div>
+        </div>
+        <!-- 进度条容器 -->
+        <div id="scanProgressContainer" class="progress-container" style="display: none;">
+          <div class="progress-label">正在扫描: <span id="scanProgressText">0%</span></div>
+          <div class="progress-bar-container">
+            <div id="scanProgressBar" class="progress-bar"></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="scanInvalidBtn" class="btn">扫描无效链接</button>
+          <button id="removeAllInvalidBtn" class="btn danger">删除所有无效链接</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>忽略域名管理</h2>
+      <p class="section-description">以下域名在扫描无效链接时将被跳过：</p>
+      <div class="ignored-domains">
+        <div id="ignoredDomainsList" class="domains-list">
+          <!-- 忽略域名列表将通过JS动态填充 -->
+          <div class="empty-placeholder">没有设置忽略的域名</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>重复链接管理</h2>
+      <div class="duplicate-links">
+        <div class="duplicate-group-list" id="duplicateLinksList">
+          <!-- 重复链接分组将通过JS动态填充 -->
+          <div class="empty-placeholder">尚未扫描重复链接</div>
+        </div>
+        <div class="actions">
+          <button id="scanDuplicateBtn" class="btn">扫描重复链接</button>
+          <button id="removeAllDuplicatesBtn" class="btn danger">自动删除所有重复项</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>AI整理结果</h2>
+      <div class="ai-organize-results">
+        <!-- 添加AI分析进度显示区域 -->
+        <div id="aiAnalysisProgress" class="ai-analysis-progress" style="display: none;">
+          <div class="progress-header">
+            <div class="progress-title">AI分析进度</div>
+            <div class="progress-status">处理中: <span id="currentStep">准备中</span></div>
+          </div>
+          <div class="progress-stages">
+            <div class="stage" data-stage="collecting">
+              <div class="stage-icon">📚</div>
+              <div class="stage-label">收集书签</div>
+              <div class="stage-status"></div>
+            </div>
+            <div class="stage-connector"></div>
+            <div class="stage" data-stage="analyzing">
+              <div class="stage-icon">🤖</div>
+              <div class="stage-label">AI分析</div>
+              <div class="stage-status"></div>
+            </div>
+            <div class="stage-connector"></div>
+            <div class="stage" data-stage="organizing">
+              <div class="stage-icon">📂</div>
+              <div class="stage-label">生成建议</div>
+              <div class="stage-status"></div>
+            </div>
+          </div>
+          <div class="progress-details">
+            <div class="progress-bar-container">
+              <div id="aiProgressBar" class="progress-bar"></div>
+            </div>
+            <div id="progressDetails" class="progress-text">正在初始化...</div>
+          </div>
+        </div>
+        
+        <div class="table-header">
+          <span class="link-title">书签名称</span>
+          <span class="link-url">URL</span>
+          <span class="link-category">AI建议分类</span>
+          <span class="link-action">操作</span>
+        </div>
+        <div id="aiOrganizeList" class="links-list">
+          <!-- AI整理结果将通过JS动态填充 -->
+          <div class="empty-placeholder">尚未进行AI整理</div>
+        </div>
+        <div class="actions">
+          <button id="startOrganizeBtn" class="btn primary">开始AI整理</button>
+          <button id="applyAllBtn" class="btn" style="display: none;">应用所有建议</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>文件夹管理</h2>
+      <div class="folder-management">
+        <div class="empty-folders">
+          <div class="table-header">
+            <span class="folder-name">文件夹名称</span>
+            <span class="folder-path">路径</span>
+            <span class="folder-action">操作</span>
+          </div>
+          <div id="emptyFoldersList" class="folders-list">
+            <!-- 空文件夹列表将通过JS动态填充 -->
+            <div class="empty-placeholder">尚未扫描空文件夹</div>
+          </div>
+          <div class="actions">
+            <button id="scanEmptyFoldersBtn" class="btn">扫描空文件夹</button>
+            <button id="removeAllEmptyFoldersBtn" class="btn danger">删除所有空文件夹</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section folder-management">
+      <h2>重复目录管理</h2>
+      <div class="section-description">
+        检测并合并名称相同或相似的文件夹，帮助整理书签结构。
+      </div>
+      <div class="actions">
+        <button id="scanDuplicateFoldersBtn" class="btn primary">扫描重复目录</button>
+        <button id="autoMergeDuplicateFoldersBtn" class="btn danger">自动合并所有重复目录</button>
+      </div>
+      <div id="duplicateFoldersList" class="duplicate-folders-list">
+        <div class="empty-placeholder">尚未扫描重复目录</div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="actions">
+        <button id="saveSettingsBtn" class="btn primary">保存设置</button>
+        <div id="saveStatus" class="save-status"></div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="options.js"></script>
+</body>
+</html> 

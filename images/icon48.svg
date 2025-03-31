@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <rect width="48" height="48" rx="4.8" fill="#3498db"/>
+  <path d="M12 7.199999999999999 L12 40.8 L24 33.599999999999994 L36 40.8 L36 7.199999999999999 Z" fill="white"/>
+  <text x="24" y="24" font-family="Arial" font-size="14.399999999999999" text-anchor="middle" fill="white">AI</text>
+</svg>

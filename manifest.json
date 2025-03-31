@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "AI智能书签管理器",
+  "version": "1.0",
+  "description": "使用AI自动整理书签，检测无效和重复链接",
+  "permissions": [
+    "bookmarks",
+    "storage",
+    "alarms",
+    "notifications"
+  ],
+  "optional_host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.svg",
+      "48": "images/icon48.svg",
+      "128": "images/icon128.svg"
+    }
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "images/icon16.svg",
+    "48": "images/icon48.svg",
+    "128": "images/icon128.svg"
+  }
+} 
