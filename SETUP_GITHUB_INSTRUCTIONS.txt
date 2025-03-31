@@ -1,0 +1,31 @@
+## 将本地仓库推送到GitHub的步骤
+
+请先在GitHub网站上创建一个新的仓库，然后按照以下步骤操作：
+
+1. 登录GitHub (https://github.com)
+
+2. 点击右上角的 "+" 图标，选择 "New repository"
+
+3. 仓库名称设置为: BookmarkAI
+
+4. 描述填写: 一个智能书签管理器Chrome扩展，使用AI自动整理书签，检测无效和重复链接
+
+5. 设置为公开仓库 (Public)
+
+6. 不要勾选 "Initialize this repository with a README"，因为我们已经创建了README.md
+
+7. 点击 "Create repository"
+
+8. 创建仓库后，GitHub会显示推送指令，请在当前目录执行:
+
+   ```bash
+   git remote add origin https://github.com/你的用户名/BookmarkAI.git
+   git branch -M main
+   git push -u origin main
+   ```
+
+   将 "你的用户名" 替换为您的GitHub用户名
+
+9. 输入您的GitHub用户名和密码 (如果您启用了双因素认证，则需要使用个人访问令牌)
+
+10. 完成后，您的代码将被推送到GitHub仓库 
