@@ -832,14 +832,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       });
       
-      // 如果有保存的结果，询问用户是否使用
+      // 如果有保存的结果，直接使用，除非用户明确要重新生成
       if (savedResults.aiOrganizeResults && savedResults.aiOrganizeResults.length > 0) {
         const timestamp = savedResults.aiAnalysisTimestamp || Date.now();
         const analysisDate = new Date(timestamp).toLocaleString();
-        const useCache = confirm(`发现已保存的AI分析结果（${analysisDate}）\n\n是否使用已保存的结果？\n- 点击"确定"使用已保存结果\n- 点击"取消"重新分析`);
         
-        if (useCache) {
-          console.log('用户选择使用已保存的分析结果');
+        // 检查按钮状态判断是否是用户主动点击"重新生成AI建议"
+        const startOrganizeBtn = document.getElementById('startOrganizeBtn');
+        const isRegenerate = startOrganizeBtn.textContent === '重新生成AI建议';
+        
+        if (!isRegenerate) {
+          console.log('使用已保存的分析结果');
           
           // 显示成功消息
           updateSaveStatus(`正在加载已保存的分析结果（${analysisDate}）`, 'success');
@@ -849,7 +852,7 @@ document.addEventListener('DOMContentLoaded', function() {
           return;
         }
         
-        console.log('用户选择重新分析');
+        console.log('用户选择重新生成AI建议');
       }
       
       // 添加加载动画和提示
@@ -1030,135 +1033,157 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 加载AI整理结果
   function loadAIOrganizeResults() {
-    chrome.storage.local.get(['aiOrganizeResults'], function(result) {
-      const organizeResults = result.aiOrganizeResults || [];
-      
-      if (organizeResults.length === 0) {
-        aiOrganizeList.innerHTML = '<div class="empty-placeholder">尚未进行AI整理</div>';
-        applyAllBtn.style.display = 'none';
-        return;
-      }
-      
-      aiOrganizeList.innerHTML = '';
-      applyAllBtn.style.display = 'inline-block';
-      
-      // 按分类路径分组显示建议
-      const categoryGroups = {};
-      organizeResults.forEach(item => {
-        const pathParts = item.suggestedCategory.split('/');
-        const topCategory = pathParts[0];
+    return new Promise((resolve) => {
+      chrome.storage.local.get(['aiOrganizeResults', 'aiAnalysisTimestamp'], function(result) {
+        const organizeResults = result.aiOrganizeResults || [];
+        const timestamp = result.aiAnalysisTimestamp || Date.now();
+        const analysisDate = new Date(timestamp).toLocaleString();
         
-        if (!categoryGroups[topCategory]) {
-          categoryGroups[topCategory] = {
-            subCategories: {},
-            items: []
-          };
+        if (organizeResults.length === 0) {
+          aiOrganizeList.innerHTML = '<div class="empty-placeholder">尚未进行AI整理</div>';
+          applyAllBtn.style.display = 'none';
+          
+          // 保持按钮文字为"开始AI整理"
+          const startOrganizeBtn = document.getElementById('startOrganizeBtn');
+          startOrganizeBtn.textContent = '开始AI整理';
+          
+          resolve();
+          return;
         }
         
-        if (pathParts.length > 1) {
-          const subCategory = pathParts[1];
-          if (!categoryGroups[topCategory].subCategories[subCategory]) {
-            categoryGroups[topCategory].subCategories[subCategory] = {
-              items: [],
-              subCategories: {}
+        aiOrganizeList.innerHTML = '';
+        applyAllBtn.style.display = 'inline-block';
+        
+        // 显示最后分析时间
+        const timeInfoDiv = document.createElement('div');
+        timeInfoDiv.className = 'analysis-time-info';
+        timeInfoDiv.innerHTML = `<div class="analysis-timestamp">最后分析时间: ${analysisDate}</div>`;
+        aiOrganizeList.appendChild(timeInfoDiv);
+        
+        // 更改按钮文字为"重新生成AI建议"
+        const startOrganizeBtn = document.getElementById('startOrganizeBtn');
+        startOrganizeBtn.textContent = '重新生成AI建议';
+        
+        // 按分类路径分组显示建议
+        const categoryGroups = {};
+        organizeResults.forEach(item => {
+          const pathParts = item.suggestedCategory.split('/');
+          const topCategory = pathParts[0];
+          
+          if (!categoryGroups[topCategory]) {
+            categoryGroups[topCategory] = {
+              subCategories: {},
+              items: []
             };
           }
           
-          if (pathParts.length > 2) {
-            const thirdCategory = pathParts[2];
-            if (!categoryGroups[topCategory].subCategories[subCategory].subCategories[thirdCategory]) {
-              categoryGroups[topCategory].subCategories[subCategory].subCategories[thirdCategory] = {
-                items: []
+          if (pathParts.length > 1) {
+            const subCategory = pathParts[1];
+            if (!categoryGroups[topCategory].subCategories[subCategory]) {
+              categoryGroups[topCategory].subCategories[subCategory] = {
+                items: [],
+                subCategories: {}
               };
             }
-            categoryGroups[topCategory].subCategories[subCategory].subCategories[thirdCategory].items.push(item);
+            
+            if (pathParts.length > 2) {
+              const thirdCategory = pathParts[2];
+              if (!categoryGroups[topCategory].subCategories[subCategory].subCategories[thirdCategory]) {
+                categoryGroups[topCategory].subCategories[subCategory].subCategories[thirdCategory] = {
+                  items: []
+                };
+              }
+              categoryGroups[topCategory].subCategories[subCategory].subCategories[thirdCategory].items.push(item);
+            } else {
+              categoryGroups[topCategory].subCategories[subCategory].items.push(item);
+            }
           } else {
-            categoryGroups[topCategory].subCategories[subCategory].items.push(item);
+            categoryGroups[topCategory].items.push(item);
           }
-        } else {
-          categoryGroups[topCategory].items.push(item);
-        }
-      });
-      
-      // 创建分类组
-      Object.entries(categoryGroups).forEach(([topCategory, topGroup]) => {
-        const topGroupDiv = document.createElement('div');
-        topGroupDiv.className = 'category-group top-level';
-        
-        // 创建顶级分类标题
-        const topHeader = document.createElement('div');
-        topHeader.className = 'category-header';
-        topHeader.innerHTML = `
-          <div class="category-title">
-            <span class="folder-icon">📁</span>
-            ${topCategory}
-            ${topGroup.items[0]?.isNewCategory ? '<span class="new-category-badge">新分类</span>' : ''}
-          </div>
-          <div class="category-count">${countTotalItems(topGroup)} 个书签</div>
-        `;
-        topGroupDiv.appendChild(topHeader);
-        
-        // 添加直接属于顶级分类的书签
-        if (topGroup.items.length > 0) {
-          const itemsDiv = createBookmarksList(topGroup.items);
-          topGroupDiv.appendChild(itemsDiv);
-        }
-        
-        // 处理二级分类
-        Object.entries(topGroup.subCategories).forEach(([subCategory, subGroup]) => {
-          const subGroupDiv = document.createElement('div');
-          subGroupDiv.className = 'category-group sub-level';
-          
-          // 创建二级分类标题
-          const subHeader = document.createElement('div');
-          subHeader.className = 'category-header';
-          subHeader.innerHTML = `
-            <div class="category-title">
-              <span class="folder-icon">📁</span>
-              ${subCategory}
-            </div>
-            <div class="category-count">${countTotalItems(subGroup)} 个书签</div>
-          `;
-          subGroupDiv.appendChild(subHeader);
-          
-          // 添加直接属于二级分类的书签
-          if (subGroup.items.length > 0) {
-            const itemsDiv = createBookmarksList(subGroup.items);
-            subGroupDiv.appendChild(itemsDiv);
-          }
-          
-          // 处理三级分类
-          Object.entries(subGroup.subCategories).forEach(([thirdCategory, thirdGroup]) => {
-            const thirdGroupDiv = document.createElement('div');
-            thirdGroupDiv.className = 'category-group third-level';
-            
-            // 创建三级分类标题
-            const thirdHeader = document.createElement('div');
-            thirdHeader.className = 'category-header';
-            thirdHeader.innerHTML = `
-              <div class="category-title">
-                <span class="folder-icon">📁</span>
-                ${thirdCategory}
-              </div>
-              <div class="category-count">${thirdGroup.items.length} 个书签</div>
-            `;
-            thirdGroupDiv.appendChild(thirdHeader);
-            
-            // 添加属于三级分类的书签
-            const itemsDiv = createBookmarksList(thirdGroup.items);
-            thirdGroupDiv.appendChild(itemsDiv);
-            
-            subGroupDiv.appendChild(thirdGroupDiv);
-          });
-          
-          topGroupDiv.appendChild(subGroupDiv);
         });
         
-        aiOrganizeList.appendChild(topGroupDiv);
+        // 创建分类组
+        Object.entries(categoryGroups).forEach(([topCategory, topGroup]) => {
+          const topGroupDiv = document.createElement('div');
+          topGroupDiv.className = 'category-group top-level';
+          
+          // 创建顶级分类标题
+          const topHeader = document.createElement('div');
+          topHeader.className = 'category-header';
+          topHeader.innerHTML = `
+            <div class="category-title">
+              <span class="folder-icon">📁</span>
+              ${topCategory}
+              ${topGroup.items[0]?.isNewCategory ? '<span class="new-category-badge">新分类</span>' : ''}
+            </div>
+            <div class="category-count">${countTotalItems(topGroup)} 个书签</div>
+          `;
+          topGroupDiv.appendChild(topHeader);
+          
+          // 添加直接属于顶级分类的书签
+          if (topGroup.items.length > 0) {
+            const itemsDiv = createBookmarksList(topGroup.items);
+            topGroupDiv.appendChild(itemsDiv);
+          }
+          
+          // 处理二级分类
+          Object.entries(topGroup.subCategories).forEach(([subCategory, subGroup]) => {
+            const subGroupDiv = document.createElement('div');
+            subGroupDiv.className = 'category-group sub-level';
+            
+            // 创建二级分类标题
+            const subHeader = document.createElement('div');
+            subHeader.className = 'category-header';
+            subHeader.innerHTML = `
+              <div class="category-title">
+                <span class="folder-icon">📁</span>
+                ${subCategory}
+              </div>
+              <div class="category-count">${countTotalItems(subGroup)} 个书签</div>
+            `;
+            subGroupDiv.appendChild(subHeader);
+            
+            // 添加直接属于二级分类的书签
+            if (subGroup.items.length > 0) {
+              const itemsDiv = createBookmarksList(subGroup.items);
+              subGroupDiv.appendChild(itemsDiv);
+            }
+            
+            // 处理三级分类
+            Object.entries(subGroup.subCategories).forEach(([thirdCategory, thirdGroup]) => {
+              const thirdGroupDiv = document.createElement('div');
+              thirdGroupDiv.className = 'category-group third-level';
+              
+              // 创建三级分类标题
+              const thirdHeader = document.createElement('div');
+              thirdHeader.className = 'category-header';
+              thirdHeader.innerHTML = `
+                <div class="category-title">
+                  <span class="folder-icon">📁</span>
+                  ${thirdCategory}
+                </div>
+                <div class="category-count">${thirdGroup.items.length} 个书签</div>
+              `;
+              thirdGroupDiv.appendChild(thirdHeader);
+              
+              // 添加属于三级分类的书签
+              const itemsDiv = createBookmarksList(thirdGroup.items);
+              thirdGroupDiv.appendChild(itemsDiv);
+              
+              subGroupDiv.appendChild(thirdGroupDiv);
+            });
+            
+            topGroupDiv.appendChild(subGroupDiv);
+          });
+          
+          aiOrganizeList.appendChild(topGroupDiv);
+        });
+        
+        // 添加事件监听器
+        addBookmarkEventListeners();
+        
+        resolve();
       });
-      
-      // 添加事件监听器
-      addBookmarkEventListeners();
     });
   }
   
@@ -1765,6 +1790,12 @@ document.addEventListener('DOMContentLoaded', function() {
         break;
     }
   }
+
+  // 初始化各个部分
+  initSettings();
+  
+  // 加载保存的AI分析结果
+  loadAIOrganizeResults();
 });
 
 // 在 options.css 中添加样式
