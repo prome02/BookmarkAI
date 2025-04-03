@@ -19,48 +19,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // AI整理书签按钮点击事件
   organizeBtn.addEventListener('click', function() {
-    updateStatus('正在整理书签...', 'progress');
-    
-    chrome.runtime.sendMessage({ action: 'organizeBookmarks' }, function(response) {
-      if (response.success) {
-        updateStatus(response.message, 'success');
-      } else {
-        updateStatus(response.message || '整理书签失败', 'error');
-      }
+    // 直接打开设置页面到AI整理结果部分
+    chrome.tabs.create({
+      url: 'options.html#ai-organize-section'
     });
   });
 
   // 检测无效链接按钮点击事件
   checkInvalidBtn.addEventListener('click', function() {
-    updateStatus('正在检测无效链接...', 'progress');
-    
-    chrome.permissions.request({ 
-      origins: ['<all_urls>'] 
-    }, function(granted) {
-      if (granted) {
-        chrome.runtime.sendMessage({ action: 'checkInvalidLinks' }, function(response) {
-          if (response.success) {
-            updateStatus(response.message, 'success');
-          } else {
-            updateStatus(response.message || '检测无效链接失败', 'error');
-          }
-        });
-      } else {
-        updateStatus('需要网站访问权限才能检测无效链接', 'error');
-      }
+    // 直接打开设置页面到无效链接管理部分
+    chrome.tabs.create({
+      url: 'options.html#invalid-links-section'
     });
   });
 
   // 检测重复链接按钮点击事件
   checkDuplicateBtn.addEventListener('click', function() {
-    updateStatus('正在检测重复链接...', 'progress');
-    
-    chrome.runtime.sendMessage({ action: 'checkDuplicateLinks' }, function(response) {
-      if (response.success) {
-        updateStatus(response.message, 'success');
-      } else {
-        updateStatus(response.message || '检测重复链接失败', 'error');
-      }
+    // 直接打开设置页面到重复链接管理部分
+    chrome.tabs.create({
+      url: 'options.html#duplicate-links-section'
     });
   });
 

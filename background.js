@@ -169,6 +169,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       });
       return true;
 
+    case 'findEmptyFolders':
+      findEmptyFolders().then(result => {
+        sendResponse(result);
+      }).catch(error => {
+        console.error('查找空文件夹出错:', error);
+        sendResponse({ success: false, message: '查找空文件夹时出错: ' + error.message });
+      });
+      return true;
+
     case 'getAllBookmarks':
       getAllBookmarks().then(result => {
         sendResponse(result);
@@ -331,7 +340,10 @@ async function organizeBookmarks() {
     console.log(`生成了 ${suggestions.length} 个建议`);
     
     // 保存建议结果
-    await chrome.storage.local.set({ aiOrganizeResults: suggestions });
+    await chrome.storage.local.set({ 
+      aiOrganizeResults: suggestions,
+      aiAnalysisTimestamp: Date.now()
+    });
     console.log('已保存建议结果到本地存储');
     
     // 发送进度通知 - 完成
@@ -1195,29 +1207,37 @@ async function moveBookmarkToCategory(bookmarkId, category) {
     // 获取"书签栏"文件夹ID
     const bookmarksBarId = '1';
     
-    // 查找或创建分类文件夹
-    let categoryFolder = null;
-    const existingFolders = await chrome.bookmarks.getChildren(bookmarksBarId);
+    // 如果分类包含 / 则需要创建多级目录
+    const categoryParts = category.split('/');
+    let currentParentId = bookmarksBarId;
     
-    // 查找是否已存在同名文件夹
-    for (const folder of existingFolders) {
-      if (!folder.url && folder.title.toLowerCase() === category.toLowerCase()) {
-        categoryFolder = folder;
-        break;
+    // 逐级创建目录结构
+    for (const folderName of categoryParts) {
+      if (!folderName.trim()) continue; // 跳过空文件夹名
+      
+      // 获取当前级别的子文件夹
+      const childFolders = await chrome.bookmarks.getChildren(currentParentId);
+      
+      // 检查此级别是否已存在同名文件夹
+      let targetFolder = childFolders.find(folder => 
+        !folder.url && folder.title.toLowerCase() === folderName.toLowerCase()
+      );
+      
+      // 如果没有找到现有文件夹，创建一个新文件夹
+      if (!targetFolder) {
+        targetFolder = await chrome.bookmarks.create({
+          parentId: currentParentId,
+          title: folderName.trim()
+        });
       }
+      
+      // 更新父ID为当前级别的文件夹ID
+      currentParentId = targetFolder.id;
     }
     
-    // 如果文件夹不存在，创建新文件夹
-    if (!categoryFolder) {
-      categoryFolder = await chrome.bookmarks.create({
-        parentId: bookmarksBarId,
-        title: category
-      });
-    }
-    
-    // 移动书签到分类文件夹
+    // 移动书签到最终的分类文件夹
     await chrome.bookmarks.move(bookmarkId, {
-      parentId: categoryFolder.id
+      parentId: currentParentId
     });
     
     return { success: true };
@@ -1288,14 +1308,47 @@ async function scanEmptyFolders() {
 // 删除空文件夹
 async function removeEmptyFolders() {
   try {
-    const emptyFolders = await findEmptyFolders();
+    console.log('开始执行 removeEmptyFolders 函数');
+    const result = await findEmptyFolders();
+    console.log('findEmptyFolders 返回结果:', result);
+    
+    if (!result.success) {
+      console.error('findEmptyFolders 执行失败:', result.message);
+      return {
+        success: false,
+        message: result.message
+      };
+    }
+    
+    const emptyFolders = result.emptyFolders;
+    console.log('获取到的空文件夹数组:', emptyFolders);
+    
+    // 检查emptyFolders是否是数组且不为空
+    if (!Array.isArray(emptyFolders)) {
+      console.error('emptyFolders 不是数组:', emptyFolders);
+      return {
+        success: false,
+        message: 'emptyFolders 不是可迭代的数组'
+      };
+    }
+    
+    if (emptyFolders.length === 0) {
+      console.log('没有找到空文件夹');
+      return {
+        success: true,
+        message: '没有找到需要删除的空文件夹'
+      };
+    }
+    
     let deletedCount = 0;
     
     for (const folder of emptyFolders) {
+      console.log('正在删除文件夹:', folder);
       await removeEmptyFolderAndParents(folder.id);
       deletedCount++;
     }
     
+    console.log('成功删除空文件夹数量:', deletedCount);
     return {
       success: true,
       message: `已删除 ${deletedCount} 个空文件夹`
@@ -1304,7 +1357,7 @@ async function removeEmptyFolders() {
     console.error('删除空文件夹时出错:', error);
     return {
       success: false,
-      message: '删除空文件夹时出错: ' + error.message
+      message: '删除空文件夹时出错: ' + (error.message || '未知错误')
     };
   }
 }

@@ -825,6 +825,33 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
+      // 先检查本地存储中是否已有分析结果
+      const savedResults = await new Promise(resolve => {
+        chrome.storage.local.get(['aiOrganizeResults', 'aiAnalysisTimestamp'], result => {
+          resolve(result);
+        });
+      });
+      
+      // 如果有保存的结果，询问用户是否使用
+      if (savedResults.aiOrganizeResults && savedResults.aiOrganizeResults.length > 0) {
+        const timestamp = savedResults.aiAnalysisTimestamp || Date.now();
+        const analysisDate = new Date(timestamp).toLocaleString();
+        const useCache = confirm(`发现已保存的AI分析结果（${analysisDate}）\n\n是否使用已保存的结果？\n- 点击"确定"使用已保存结果\n- 点击"取消"重新分析`);
+        
+        if (useCache) {
+          console.log('用户选择使用已保存的分析结果');
+          
+          // 显示成功消息
+          updateSaveStatus(`正在加载已保存的分析结果（${analysisDate}）`, 'success');
+          
+          // 加载结果
+          await loadAIOrganizeResults();
+          return;
+        }
+        
+        console.log('用户选择重新分析');
+      }
+      
       // 添加加载动画和提示
       aiOrganizeList.innerHTML = `
         <div class="loading-container">
@@ -853,19 +880,32 @@ document.addEventListener('DOMContentLoaded', function() {
         apiKey: currentUiSettings.apiKey ? '已设置(长度:' + currentUiSettings.apiKey.length + ')' : '未设置'
       });
       
-      // 检查是否需要保存设置
-      const shouldSaveSettings = confirm('是否先保存当前API设置再继续？');
-      if (shouldSaveSettings) {
-        console.log('用户选择先保存设置');
-        saveSettings();
-      }
-      
-      // 从存储中获取API设置
-      const settings = await new Promise(resolve => {
+      // 从存储中获取保存的API设置
+      const savedSettings = await new Promise(resolve => {
         chrome.storage.sync.get(['aiApiType', 'customApiEndpoint', 'apiKey'], resolve);
       });
       
-      console.log('从存储中获取到的API设置:', {
+      // 检查界面设置与保存的设置是否一致
+      const settingsChanged = 
+        currentUiSettings.aiApiType !== savedSettings.aiApiType ||
+        currentUiSettings.apiKey !== savedSettings.apiKey ||
+        (currentUiSettings.aiApiType === 'custom' && 
+         currentUiSettings.customApiEndpoint !== savedSettings.customApiEndpoint);
+      
+      // 只在设置被修改但未保存时提示
+      let shouldSaveSettings = false;
+      if (settingsChanged) {
+        shouldSaveSettings = confirm('是否先保存当前API设置再继续？');
+        if (shouldSaveSettings) {
+          console.log('用户选择先保存设置');
+          saveSettings();
+        }
+      }
+      
+      // 使用保存的设置或当前界面设置
+      const settings = shouldSaveSettings ? currentUiSettings : savedSettings;
+      
+      console.log('使用的API设置:', {
         aiApiType: settings.aiApiType || '未设置',
         customApiEndpoint: settings.customApiEndpoint ? '已设置' : '未设置',
         apiKey: settings.apiKey ? '已设置(长度:' + settings.apiKey.length + ')' : '未设置'
@@ -952,6 +992,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const steps = document.querySelectorAll('.loading-step');
     if (!steps || steps.length === 0) return;
     
+    // 处理特殊步骤 3.5（额外自动化步骤）
+    if (step === 3.5) {
+      // 保持第3步为已完成状态，但不激活第4步
+      steps.forEach((stepElement, index) => {
+        if (index + 1 <= 3) {
+          stepElement.classList.remove('active');
+          stepElement.classList.add('completed');
+        } else {
+          stepElement.classList.remove('active');
+          stepElement.classList.remove('completed');
+        }
+      });
+      
+      // 更新进度条显示
+      const progressBar = document.getElementById('aiProgressBar');
+      if (progressBar) {
+        progressBar.style.width = '80%';
+      }
+      return;
+    }
+    
+    // 处理常规步骤
     steps.forEach((stepElement, index) => {
       if (index + 1 < step) {
         stepElement.classList.remove('active');
@@ -1277,11 +1339,32 @@ document.addEventListener('DOMContentLoaded', function() {
       Promise.all(movePromises).then(results => {
         const successCount = results.filter(r => r.success).length;
         
-        updateSaveStatus(`已成功移动 ${successCount}/${organizeResults.length} 个书签`, 'success');
+        updateSaveStatus(`已成功移动 ${successCount}/${organizeResults.length} 个书签，正在执行附加整理...`, 'success');
         
         // 清空AI整理结果
-        chrome.storage.local.set({ aiOrganizeResults: [] }, function() {
-          loadAIOrganizeResults();
+        chrome.storage.local.set({ 
+          aiOrganizeResults: [],
+          aiAnalysisTimestamp: null
+        }, function() {
+          // 自动合并重复目录
+          updateSaveStatus('正在自动合并重复目录...', '');
+          console.log('开始自动合并重复目录...');
+          
+          chrome.runtime.sendMessage({ action: 'autoMergeDuplicateFolders' }, function(mergeResult) {
+            console.log('合并重复目录结果:', mergeResult);
+            
+            // 自动删除空文件夹
+            updateSaveStatus('正在自动删除空文件夹...', '');
+            console.log('开始自动删除空文件夹...');
+            
+            chrome.runtime.sendMessage({ action: 'removeEmptyFolders' }, function(removeResult) {
+              console.log('删除空文件夹结果:', removeResult);
+              
+              // 整理完成
+              updateSaveStatus('所有操作已完成: 已应用AI建议、合并重复目录并删除空文件夹', 'success');
+              loadAIOrganizeResults();
+            });
+          });
         });
       });
     });
@@ -1308,9 +1391,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       const response = await chrome.runtime.sendMessage({ action: 'findEmptyFolders' });
+      console.log('收到空文件夹扫描响应:', response);
       // 检查响应格式并处理可能的不同返回格式
       const emptyFolders = Array.isArray(response) ? response : 
                           (response && response.emptyFolders ? response.emptyFolders : []);
+      console.log('处理后的空文件夹数组:', emptyFolders);
       
       if (emptyFolders.length === 0) {
         const emptyPlaceholder = document.createElement('div');
@@ -1367,6 +1452,24 @@ document.addEventListener('DOMContentLoaded', function() {
     return folderElement;
   }
   
+  // 删除空文件夹
+  async function removeEmptyFolder(folderId) {
+    try {
+      updateSaveStatus('正在删除空文件夹...', '');
+      
+      // 直接调用Chrome API删除文件夹
+      await chrome.bookmarks.removeTree(folderId);
+      
+      updateSaveStatus('文件夹已删除', 'success');
+      
+      // 重新扫描空文件夹
+      scanEmptyFolders();
+    } catch (error) {
+      console.error('删除空文件夹时出错:', error);
+      updateSaveStatus('删除空文件夹时出错: ' + error.message, 'error');
+    }
+  }
+  
   // 删除所有空文件夹
   async function removeAllEmptyFolders() {
     if (!confirm('确定要删除所有空文件夹吗？\n\n注意：\n- 如果父文件夹在删除子文件夹后变为空，也会被删除\n- 此操作无法撤销')) {
@@ -1379,7 +1482,11 @@ document.addEventListener('DOMContentLoaded', function() {
       const response = await chrome.runtime.sendMessage({ action: 'removeEmptyFolders' });
       
       if (response.success) {
-        document.getElementById('emptyFoldersSection').style.display = 'none';
+        // 清空列表而不是隐藏不存在的元素
+        const emptyFoldersList = document.getElementById('emptyFoldersList');
+        if (emptyFoldersList) {
+          emptyFoldersList.innerHTML = '<div class="empty-placeholder">所有空文件夹已删除</div>';
+        }
         document.getElementById('removeAllEmptyFoldersBtn').style.display = 'none';
         updateSaveStatus(response.message, 'success');
       } else {
@@ -1595,7 +1702,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 根据不同的阶段更新界面
     switch(data.stage) {
       case 'start':
-        // 开始阶段，无需额外操作
+        // 开始阶段
         updateLoadingStep(1);
         break;
       case 'collecting':
@@ -1607,8 +1714,17 @@ document.addEventListener('DOMContentLoaded', function() {
         updateLoadingStep(2);
         break;
       case 'organizing':
-        // 生成建议阶段
+        // 生成建议阶段 - 确保这里显示为第3步
         updateLoadingStep(3);
+        break;
+      case 'additional':
+        // 额外的自动化步骤（合并重复目录、删除空目录）
+        updateLoadingStep(3.5);
+        // 更新进度详情文本
+        const progressDetails = document.getElementById('progressDetails');
+        if (progressDetails) {
+          progressDetails.textContent = data.message || '执行额外整理步骤...';
+        }
         break;
       case 'complete':
         // 完成阶段
@@ -1621,7 +1737,7 @@ document.addEventListener('DOMContentLoaded', function() {
               <div class="complete-icon">✅</div>
               <div class="complete-message">
                 <div class="complete-title">AI分析完成</div>
-                <div class="complete-details">已生成 ${data.suggestions} 个分类建议</div>
+                <div class="complete-details">${data.message || `已生成 ${data.suggestions} 个分类建议`}</div>
               </div>
             `;
             
