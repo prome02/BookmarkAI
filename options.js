@@ -60,15 +60,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // 加载设置
-  loadSettings();
+  // 页面初始化流程
+  async function initializePage() {
+    try {
+      // 1. 加载设置
+      await new Promise(resolve => {
+        loadSettings();
+        resolve();
+      });
+      
+      // 2. 检查并显示保存的AI分析结果
+      await loadAIOrganizeResults();
+      
+      // 3. 加载其他数据
+      loadInvalidLinks();
+      loadDuplicateLinks();
+      loadIgnoredDomains();
+    } catch (error) {
+      console.error('页面初始化错误:', error);
+    }
+  }
   
-  // 加载无效链接和重复链接数据
-  loadInvalidLinks();
-  loadDuplicateLinks();
-  
-  // 加载忽略域名列表
-  loadIgnoredDomains();
+  // 执行页面初始化
+  initializePage();
   
   // 保存设置按钮点击事件
   saveSettingsBtn.addEventListener('click', function() {
@@ -106,9 +120,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // 开始AI整理按钮点击事件
+  // 开始AI整理按钮点击事件（现在是重新生成AI建议）
   startOrganizeBtn.addEventListener('click', function() {
-    startAIOrganize();
+    startAIOrganize(true); // 传递true表示强制重新生成
   });
   
   // 应用所有建议按钮点击事件
@@ -814,7 +828,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // 开始AI整理
-  async function startAIOrganize() {
+  async function startAIOrganize(isRegenerate) {
     try {
       console.log('开始执行startAIOrganize函数...');
       
@@ -832,28 +846,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       });
       
-      // 如果有保存的结果，直接使用，除非用户明确要重新生成
-      if (savedResults.aiOrganizeResults && savedResults.aiOrganizeResults.length > 0) {
+      // 如果有保存的结果，且不是强制重新生成，则使用保存的结果
+      if (savedResults.aiOrganizeResults && savedResults.aiOrganizeResults.length > 0 && !isRegenerate) {
         const timestamp = savedResults.aiAnalysisTimestamp || Date.now();
         const analysisDate = new Date(timestamp).toLocaleString();
         
-        // 检查按钮状态判断是否是用户主动点击"重新生成AI建议"
-        const startOrganizeBtn = document.getElementById('startOrganizeBtn');
-        const isRegenerate = startOrganizeBtn.textContent === '重新生成AI建议';
+        console.log('使用已保存的分析结果');
         
-        if (!isRegenerate) {
-          console.log('使用已保存的分析结果');
-          
-          // 显示成功消息
-          updateSaveStatus(`正在加载已保存的分析结果（${analysisDate}）`, 'success');
-          
-          // 加载结果
-          await loadAIOrganizeResults();
-          return;
-        }
+        // 显示成功消息
+        updateSaveStatus(`已加载已保存的分析结果（${analysisDate}）`, 'success');
         
-        console.log('用户选择重新生成AI建议');
+        // 加载结果
+        await loadAIOrganizeResults();
+        return;
       }
+      
+      console.log(isRegenerate ? '用户选择重新生成AI建议' : '没有找到已保存的分析结果，开始新的分析');
       
       // 添加加载动画和提示
       aiOrganizeList.innerHTML = `
