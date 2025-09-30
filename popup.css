@@ -90,3 +90,118 @@ h1 {
 .footer a:hover {
   text-decoration: underline;
 }
+/* 近期書籤樣式 */
+.section {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section h2 {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #2c3e50;
+}
+
+.section-description {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.recent-bookmarks-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.limit-select {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: white;
+}
+
+.recent-bookmarks-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 8px;
+  background-color: #f9f9f9;
+}
+
+.recent-bookmark-item {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+}
+
+.recent-bookmark-item:last-child {
+  border-bottom: none;
+}
+
+.recent-bookmark-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.recent-bookmark-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.bookmark-index {
+  color: #666;
+  font-size: 10px;
+  background-color: #eee;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.bookmark-link {
+  color: #3498db;
+  text-decoration: none;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bookmark-link:hover {
+  text-decoration: underline;
+}
+
+.bookmark-title {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.recent-bookmark-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 10px;
+  color: #666;
+}
+
+.path-badge {
+  background-color: #e0e0e0;
+  padding: 2px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.date-badge {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  padding: 2px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+}

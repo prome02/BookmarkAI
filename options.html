@@ -46,7 +46,25 @@
         </select>
       </div>
     </div>
-    
+
+    <div class="section">
+      <h2>近期加入書籤</h2>
+      <p class="section-description">顯示最近添加的書籤，快速訪問新收藏的內容</p>
+      <div class="recent-bookmarks-controls">
+        <label for="recentBookmarksLimit">顯示數量:</label>
+        <select id="recentBookmarksLimit" class="limit-select">
+          <option value="10" selected>10 筆</option>
+          <option value="20">20 筆</option>
+          <option value="30">30 筆</option>
+          <option value="40">40 筆</option>
+        </select>
+        <button id="refreshRecentBookmarksBtn" class="btn primary">重新載入</button>
+      </div>
+      <div id="recentBookmarksList" class="recent-bookmarks-list">
+        <div class="empty-placeholder">正在載入近期書籤...</div>
+      </div>
+    </div>
+
     <div id="invalid-links-section" class="section">
       <h2>无效链接管理</h2>
       <div class="invalid-links">
@@ -69,7 +87,29 @@
         </div>
         <div class="actions">
           <button id="scanInvalidBtn" class="btn">扫描无效链接</button>
+          <button id="findOldBookmarksBtn" class="btn primary">查找6個月前書籤</button>
           <button id="removeAllInvalidBtn" class="btn danger">删除所有无效链接</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="old-bookmarks-section" class="section" style="display: none;">
+      <h2>舊書籤管理</h2>
+      <p class="section-description">以下書籤創建於6個月前，且最後訪問時間也超過6個月（或從未訪問）</p>
+      <div class="old-bookmarks">
+        <div class="table-header">
+          <span class="link-title">標題</span>
+          <span class="link-url">URL</span>
+          <span class="link-date">創建日期</span>
+          <span class="link-date">最後訪問</span>
+          <span class="link-action">操作</span>
+        </div>
+        <div id="oldBookmarksList" class="links-list">
+          <!-- 舊書籤列表將通過JS動態填充 -->
+          <div class="empty-placeholder">尚未掃描舊書籤</div>
+        </div>
+        <div class="actions">
+          <button id="removeAllOldBtn" class="btn danger">刪除所有舊書籤</button>
         </div>
       </div>
     </div>
@@ -82,6 +122,47 @@
           <!-- 忽略域名列表将通过JS动态填充 -->
           <div class="empty-placeholder">没有设置忽略的域名</div>
         </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>誤判數據分析</h2>
+      <p class="section-description">系統收集您手動標記的誤判數據，用於分析和改善無效鏈接判斷算法</p>
+      <div class="learning-stats">
+        <div class="stat-item">
+          <div class="stat-label">誤判記錄總數</div>
+          <div class="stat-value" id="falsePositiveCount">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">已學習的有效域名</div>
+          <div class="stat-value" id="learnedDomainsCount">0</div>
+        </div>
+      </div>
+
+      <div class="analysis-section">
+        <h3>誤判狀態碼分析</h3>
+        <p class="section-description">統計被誤判的 HTTP 狀態碼，幫助改善判斷邏輯</p>
+        <div id="statusCodeAnalysis" class="status-code-analysis">
+          <!-- 狀態碼分析將通過JS動態填充 -->
+          <div class="empty-placeholder">暫無數據</div>
+        </div>
+      </div>
+
+      <div class="analysis-section">
+        <h3>誤判域名統計（Top 10）</h3>
+        <div id="domainAnalysis" class="domain-analysis">
+          <!-- 域名分析將通過JS動態填充 -->
+          <div class="empty-placeholder">暫無數據</div>
+        </div>
+      </div>
+
+      <div id="learnedDomainsList" class="learned-domains-list">
+        <!-- 學習的域名列表將通過JS動態填充 -->
+      </div>
+
+      <div class="actions">
+        <button id="exportLearningDataBtn" class="btn primary">匯出分析數據</button>
+        <button id="clearLearningDataBtn" class="btn danger">清除學習數據</button>
       </div>
     </div>
     
@@ -152,40 +233,6 @@
       </div>
     </div>
     
-    <div class="section">
-      <h2>文件夹管理</h2>
-      <div class="folder-management">
-        <div class="empty-folders">
-          <div class="table-header">
-            <span class="folder-name">文件夹名称</span>
-            <span class="folder-path">路径</span>
-            <span class="folder-action">操作</span>
-          </div>
-          <div id="emptyFoldersList" class="folders-list">
-            <!-- 空文件夹列表将通过JS动态填充 -->
-            <div class="empty-placeholder">尚未扫描空文件夹</div>
-          </div>
-          <div class="actions">
-            <button id="scanEmptyFoldersBtn" class="btn">扫描空文件夹</button>
-            <button id="removeAllEmptyFoldersBtn" class="btn danger">删除所有空文件夹</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="section folder-management">
-      <h2>重复目录管理</h2>
-      <div class="section-description">
-        检测并合并名称相同或相似的文件夹，帮助整理书签结构。
-      </div>
-      <div class="actions">
-        <button id="scanDuplicateFoldersBtn" class="btn primary">扫描重复目录</button>
-        <button id="autoMergeDuplicateFoldersBtn" class="btn danger">自动合并所有重复目录</button>
-      </div>
-      <div id="duplicateFoldersList" class="duplicate-folders-list">
-        <div class="empty-placeholder">尚未扫描重复目录</div>
-      </div>
-    </div>
     
     <div class="section">
       <div class="actions">

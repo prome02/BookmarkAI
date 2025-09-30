@@ -32,15 +32,26 @@ document.addEventListener('DOMContentLoaded', function() {
   const startOrganizeBtn = document.getElementById('startOrganizeBtn');
   const applyAllBtn = document.getElementById('applyAllBtn');
   
-  // 空文件夹相关元素
-  const emptyFoldersList = document.getElementById('emptyFoldersList');
-  const scanEmptyFoldersBtn = document.getElementById('scanEmptyFoldersBtn');
-  const removeAllEmptyFoldersBtn = document.getElementById('removeAllEmptyFoldersBtn');
-  
-  // 重复目录相关元素
-  const duplicateFoldersList = document.getElementById('duplicateFoldersList');
-  const scanDuplicateFoldersBtn = document.getElementById('scanDuplicateFoldersBtn');
-  const autoMergeDuplicateFoldersBtn = document.getElementById('autoMergeDuplicateFoldersBtn');
+
+  // 學習統計相關元素
+  const falsePositiveCount = document.getElementById('falsePositiveCount');
+  const learnedDomainsCount = document.getElementById('learnedDomainsCount');
+  const learnedDomainsList = document.getElementById('learnedDomainsList');
+  const clearLearningDataBtn = document.getElementById('clearLearningDataBtn');
+  const exportLearningDataBtn = document.getElementById('exportLearningDataBtn');
+  const statusCodeAnalysis = document.getElementById('statusCodeAnalysis');
+  const domainAnalysis = document.getElementById('domainAnalysis');
+
+  // 舊書籤相關元素
+  const findOldBookmarksBtn = document.getElementById('findOldBookmarksBtn');
+  const oldBookmarksSection = document.getElementById('old-bookmarks-section');
+  const oldBookmarksList = document.getElementById('oldBookmarksList');
+  const removeAllOldBtn = document.getElementById('removeAllOldBtn');
+
+  // 近期書籤相關元素
+  const recentBookmarksList = document.getElementById('recentBookmarksList');
+  const recentBookmarksLimit = document.getElementById('recentBookmarksLimit');
+  const refreshRecentBookmarksBtn = document.getElementById('refreshRecentBookmarksBtn');
   
   // 监听API类型变化以显示/隐藏自定义模型选项
   aiApiTypeSelect.addEventListener('change', function() {
@@ -76,11 +87,13 @@ document.addEventListener('DOMContentLoaded', function() {
       loadInvalidLinks();
       loadDuplicateLinks();
       loadIgnoredDomains();
+      loadLearningStats();
+      loadRecentBookmarks(); // 載入近期書籤
     } catch (error) {
       console.error('页面初始化错误:', error);
     }
   }
-  
+
   // 执行页面初始化
   initializePage();
   
@@ -132,28 +145,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // 扫描空文件夹按钮点击事件
-  scanEmptyFoldersBtn.addEventListener('click', function() {
-    scanEmptyFolders();
-  });
-  
-  // 删除所有空文件夹按钮点击事件
-  removeAllEmptyFoldersBtn.addEventListener('click', function() {
-    if (confirm('确定要删除所有空文件夹吗？此操作不可撤销。')) {
-      removeAllEmptyFolders();
+
+  // 清除學習數據按鈕點擊事件
+  clearLearningDataBtn.addEventListener('click', function() {
+    if (confirm('確定要清除所有學習數據嗎？這將刪除所有誤判記錄和已學習的域名。此操作不可撤銷。')) {
+      clearLearningData();
     }
   });
-  
-  // 扫描重复目录按钮点击事件
-  scanDuplicateFoldersBtn.addEventListener('click', function() {
-    scanDuplicateFolders();
+
+  // 匯出學習數據按鈕點擊事件
+  exportLearningDataBtn.addEventListener('click', function() {
+    exportLearningData();
   });
-  
-  // 自动合并重复目录按钮点击事件
-  autoMergeDuplicateFoldersBtn.addEventListener('click', function() {
-    if (confirm('确定要自动合并所有重复目录吗？系统将保留每组中的第一个文件夹，并将其他文件夹中的内容合并到其中。此操作不可撤销。')) {
-      autoMergeDuplicateFolders();
+
+  // 查找舊書籤按鈕點擊事件
+  findOldBookmarksBtn.addEventListener('click', function() {
+    findOldBookmarks();
+  });
+
+  // 刪除所有舊書籤按鈕點擊事件
+  removeAllOldBtn.addEventListener('click', function() {
+    if (confirm('確定要刪除所有6個月前的舊書籤嗎？此操作不可撤銷。')) {
+      removeAllOldBookmarks();
     }
+  });
+
+  // 重新載入近期書籤按鈕點擊事件
+  refreshRecentBookmarksBtn.addEventListener('click', function() {
+    loadRecentBookmarks();
+  });
+
+  // 近期書籤數量選擇改變事件
+  recentBookmarksLimit.addEventListener('change', function() {
+    loadRecentBookmarks();
   });
   
   // 启动无效链接扫描
@@ -469,17 +493,17 @@ document.addEventListener('DOMContentLoaded', function() {
       invalidLinks.forEach(function(link) {
         const linkItem = document.createElement('div');
         linkItem.className = 'link-item';
-        
+
         linkItem.innerHTML = `
           <span class="link-title" title="${link.title}">${link.title || '无标题'}</span>
-          <span class="link-url" title="${link.url}">${link.url}</span>
+          <a class="link-url" href="${link.url}" target="_blank" title="${link.url}">${link.url}</a>
           <span class="link-status status-error">${link.status || '错误'}</span>
           <span class="link-action">
             <button class="btn small remove-link" data-id="${link.id}">删除</button>
             <button class="btn small mark-valid" data-id="${link.id}" data-url="${link.url}">标记为有效</button>
           </span>
         `;
-        
+
         invalidLinksList.appendChild(linkItem);
       });
       
@@ -507,8 +531,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // 从存储中移除此链接（不删除实际书签）
     chrome.storage.local.get(['invalidLinks'], function(result) {
       const invalidLinks = result.invalidLinks || [];
+      const markedLink = invalidLinks.find(link => link.id === bookmarkId);
       const updatedLinks = invalidLinks.filter(link => link.id !== bookmarkId);
-      
+
+      // 記錄誤判數據用於學習
+      if (markedLink) {
+        recordFalsePositive(url, markedLink.status);
+      }
+
       chrome.storage.local.set({ invalidLinks: updatedLinks }, function() {
         // 询问是否将域名添加到忽略列表
         if (confirm('是否将这个链接的域名添加到忽略列表？这将在未来的扫描中跳过此域名的所有书签。')) {
@@ -524,10 +554,75 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
           updateSaveStatus('链接已标记为有效', 'success');
         }
-        
+
         loadInvalidLinks(); // 重新加载无效链接列表
       });
     });
+  }
+
+  // 記錄誤判數據
+  function recordFalsePositive(url, status) {
+    try {
+      const urlObj = new URL(url);
+      const hostname = urlObj.hostname.toLowerCase();
+
+      // 從存儲中獲取現有的誤判記錄
+      chrome.storage.local.get(['falsePositives'], function(result) {
+        const falsePositives = result.falsePositives || [];
+
+        // 添加新的誤判記錄
+        falsePositives.push({
+          url: url,
+          hostname: hostname,
+          status: status,
+          timestamp: Date.now()
+        });
+
+        // 保存更新後的記錄
+        chrome.storage.local.set({ falsePositives: falsePositives }, function() {
+          console.log('已記錄誤判數據:', hostname, status);
+
+          // 分析誤判模式並更新已知有效域名列表
+          analyzeFalsePositivesAndUpdate(falsePositives);
+        });
+      });
+    } catch (error) {
+      console.error('記錄誤判數據時出錯:', error);
+    }
+  }
+
+  // 分析誤判模式並更新已知有效域名列表
+  function analyzeFalsePositivesAndUpdate(falsePositives) {
+    // 統計每個域名被誤判的次數
+    const domainCounts = {};
+
+    falsePositives.forEach(record => {
+      const hostname = record.hostname;
+      if (!domainCounts[hostname]) {
+        domainCounts[hostname] = 0;
+      }
+      domainCounts[hostname]++;
+    });
+
+    // 找出誤判次數超過閾值的域名（例如：2次以上）
+    const frequentFalsePositiveDomains = [];
+    Object.entries(domainCounts).forEach(([hostname, count]) => {
+      if (count >= 2) {
+        frequentFalsePositiveDomains.push(hostname);
+      }
+    });
+
+    // 如果有高頻誤判域名，通知後台更新已知有效域名列表
+    if (frequentFalsePositiveDomains.length > 0) {
+      chrome.runtime.sendMessage({
+        action: 'updateKnownValidDomains',
+        domains: frequentFalsePositiveDomains
+      }, function(response) {
+        if (response && response.success) {
+          console.log('已更新已知有效域名列表:', frequentFalsePositiveDomains);
+        }
+      });
+    }
   }
   
   // 删除无效链接
@@ -1404,329 +1499,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // 扫描空文件夹
-  async function scanEmptyFolders() {
-    const emptyFoldersList = document.getElementById('emptyFoldersList');
-    const scanEmptyFoldersBtn = document.getElementById('scanEmptyFoldersBtn');
-    const removeAllEmptyFoldersBtn = document.getElementById('removeAllEmptyFoldersBtn');
-    
-    if (!emptyFoldersList || !scanEmptyFoldersBtn || !removeAllEmptyFoldersBtn) {
-      console.error('找不到必要的DOM元素');
-      return;
-    }
-
-    try {
-      scanEmptyFoldersBtn.disabled = true;
-      scanEmptyFoldersBtn.textContent = '正在扫描...';
-      
-      // 清空现有列表
-      while (emptyFoldersList.firstChild) {
-        emptyFoldersList.removeChild(emptyFoldersList.firstChild);
-      }
-      
-      const response = await chrome.runtime.sendMessage({ action: 'findEmptyFolders' });
-      console.log('收到空文件夹扫描响应:', response);
-      // 检查响应格式并处理可能的不同返回格式
-      const emptyFolders = Array.isArray(response) ? response : 
-                          (response && response.emptyFolders ? response.emptyFolders : []);
-      console.log('处理后的空文件夹数组:', emptyFolders);
-      
-      if (emptyFolders.length === 0) {
-        const emptyPlaceholder = document.createElement('div');
-        emptyPlaceholder.className = 'empty-placeholder';
-        emptyPlaceholder.textContent = '未找到空文件夹';
-        emptyFoldersList.appendChild(emptyPlaceholder);
-        removeAllEmptyFoldersBtn.style.display = 'none';
-      } else {
-        removeAllEmptyFoldersBtn.style.display = 'inline-block';
-        
-        for (const folder of emptyFolders) {
-          const folderPath = await getFolderPath(folder);
-          const folderElement = createFolderElement(folder, folderPath);
-          emptyFoldersList.appendChild(folderElement);
-        }
-      }
-    } catch (error) {
-      console.error('扫描空文件夹时出错:', error);
-      const errorElement = document.createElement('div');
-      errorElement.className = 'error-message';
-      errorElement.textContent = `扫描出错: ${error.message}`;
-      emptyFoldersList.appendChild(errorElement);
-    } finally {
-      scanEmptyFoldersBtn.disabled = false;
-      scanEmptyFoldersBtn.textContent = '扫描空文件夹';
-    }
-  }
-
-  function createFolderElement(folder, folderPath) {
-    const folderElement = document.createElement('div');
-    folderElement.className = 'folder-item';
-    
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'folder-name';
-    nameSpan.innerHTML = `<img src="images/folder.svg" alt="文件夹" class="folder-icon"> ${folder.title}`;
-    
-    const pathSpan = document.createElement('span');
-    pathSpan.className = 'folder-path';
-    pathSpan.textContent = folderPath;
-    
-    const actionSpan = document.createElement('span');
-    actionSpan.className = 'folder-action';
-    
-    const deleteButton = document.createElement('button');
-    deleteButton.className = 'btn danger small';
-    deleteButton.textContent = '删除';
-    deleteButton.onclick = () => removeEmptyFolder(folder.id);
-    
-    actionSpan.appendChild(deleteButton);
-    folderElement.appendChild(nameSpan);
-    folderElement.appendChild(pathSpan);
-    folderElement.appendChild(actionSpan);
-    
-    return folderElement;
-  }
-  
-  // 删除空文件夹
-  async function removeEmptyFolder(folderId) {
-    try {
-      updateSaveStatus('正在删除空文件夹...', '');
-      
-      // 直接调用Chrome API删除文件夹
-      await chrome.bookmarks.removeTree(folderId);
-      
-      updateSaveStatus('文件夹已删除', 'success');
-      
-      // 重新扫描空文件夹
-      scanEmptyFolders();
-    } catch (error) {
-      console.error('删除空文件夹时出错:', error);
-      updateSaveStatus('删除空文件夹时出错: ' + error.message, 'error');
-    }
-  }
-  
-  // 删除所有空文件夹
-  async function removeAllEmptyFolders() {
-    if (!confirm('确定要删除所有空文件夹吗？\n\n注意：\n- 如果父文件夹在删除子文件夹后变为空，也会被删除\n- 此操作无法撤销')) {
-      return;
-    }
-    
-    try {
-      updateSaveStatus('正在删除空文件夹...', '');
-      
-      const response = await chrome.runtime.sendMessage({ action: 'removeEmptyFolders' });
-      
-      if (response.success) {
-        // 清空列表而不是隐藏不存在的元素
-        const emptyFoldersList = document.getElementById('emptyFoldersList');
-        if (emptyFoldersList) {
-          emptyFoldersList.innerHTML = '<div class="empty-placeholder">所有空文件夹已删除</div>';
-        }
-        document.getElementById('removeAllEmptyFoldersBtn').style.display = 'none';
-        updateSaveStatus(response.message, 'success');
-      } else {
-        updateSaveStatus(response.message, 'error');
-      }
-    } catch (error) {
-      console.error('删除空文件夹时出错:', error);
-      updateSaveStatus('删除空文件夹时出错: ' + error.message, 'error');
-    }
-  }
-  
-  // 获取文件夹路径
-  function getFolderPath(folder) {
-    return new Promise((resolve) => {
-      const path = [];
-      
-      function getParent(id) {
-        chrome.bookmarks.get(id, (result) => {
-          if (chrome.runtime.lastError) {
-            resolve(path.reverse().join(' > '));
-            return;
-          }
-          
-          const parent = result[0];
-          if (parent.title) {
-            path.push(parent.title);
-          }
-          
-          if (parent.parentId && parent.id !== '0') {
-            getParent(parent.parentId);
-          } else {
-            resolve(path.reverse().join(' > '));
-          }
-        });
-      }
-      
-      if (folder.parentId) {
-        getParent(folder.parentId);
-      } else {
-        resolve('');
-      }
-    });
-  }
-  
-  // 扫描重复目录
-  async function scanDuplicateFolders() {
-    try {
-      scanDuplicateFoldersBtn.disabled = true;
-      scanDuplicateFoldersBtn.textContent = '正在扫描...';
-      
-      // 清空当前列表
-      duplicateFoldersList.innerHTML = '<div class="empty-placeholder">正在扫描重复目录，请稍候...</div>';
-      
-      const response = await chrome.runtime.sendMessage({ action: 'findDuplicateFolders' });
-      
-      if (response.success) {
-        const duplicateFolders = response.duplicateFolders;
-        
-        if (duplicateFolders.length === 0) {
-          duplicateFoldersList.innerHTML = '<div class="empty-placeholder">未找到重复目录</div>';
-        } else {
-          duplicateFoldersList.innerHTML = '';
-          
-          // 创建重复目录组
-          duplicateFolders.forEach((group, index) => {
-            const groupDiv = document.createElement('div');
-            groupDiv.className = 'duplicate-folder-group';
-            
-            // 创建组标题
-            const groupHeader = document.createElement('div');
-            groupHeader.className = 'duplicate-group-header';
-            groupHeader.innerHTML = `
-              <div class="group-title">
-                <span class="folder-icon">📁</span>
-                重复目录组 #${index + 1} - "${group.name}"
-              </div>
-              <div class="group-count">${group.folders.length} 个文件夹</div>
-            `;
-            groupDiv.appendChild(groupHeader);
-            
-            // 创建文件夹列表
-            const foldersDiv = document.createElement('div');
-            foldersDiv.className = 'duplicate-folders';
-            
-            // 添加每个重复文件夹
-            group.folders.forEach((folder, folderIndex) => {
-              const folderDiv = document.createElement('div');
-              folderDiv.className = 'duplicate-folder-item';
-              
-              const path = folder.path.join(' > ') || '根目录';
-              
-              folderDiv.innerHTML = `
-                <div class="folder-info">
-                  <div class="folder-title">
-                    <span class="folder-icon">📁</span>
-                    ${folder.title}
-                  </div>
-                  <div class="folder-path" title="${path}">
-                    <span class="path-icon">📍</span>
-                    ${path}
-                  </div>
-                </div>
-                <div class="folder-actions">
-                  <button class="btn small merge-target" data-group="${index}" data-folder-id="${folder.id}">
-                    选为合并目标
-                  </button>
-                </div>
-              `;
-              
-              foldersDiv.appendChild(folderDiv);
-            });
-            
-            groupDiv.appendChild(foldersDiv);
-            duplicateFoldersList.appendChild(groupDiv);
-          });
-          
-          // 添加合并按钮事件
-          addMergeButtonListeners();
-        }
-      } else {
-        duplicateFoldersList.innerHTML = `
-          <div class="error-message">
-            扫描重复目录时出错: ${response.message}
-          </div>
-        `;
-      }
-    } catch (error) {
-      console.error('扫描重复目录时出错:', error);
-      duplicateFoldersList.innerHTML = `
-        <div class="error-message">
-          扫描重复目录时出错: ${error.message}
-        </div>
-      `;
-    } finally {
-      scanDuplicateFoldersBtn.disabled = false;
-      scanDuplicateFoldersBtn.textContent = '扫描重复目录';
-    }
-  }
-  
-  // 添加合并按钮事件监听器
-  function addMergeButtonListeners() {
-    document.querySelectorAll('.merge-target').forEach(button => {
-      button.addEventListener('click', async function() {
-        const groupIndex = this.getAttribute('data-group');
-        const targetId = this.getAttribute('data-folder-id');
-        const group = document.querySelectorAll(`[data-group="${groupIndex}"]`);
-        
-        // 更新按钮状态
-        group.forEach(btn => {
-          if (btn === this) {
-            btn.textContent = '已选择为目标';
-            btn.disabled = true;
-            btn.classList.add('selected');
-          } else {
-            btn.textContent = '合并到选中目标';
-            btn.disabled = false;
-            btn.classList.remove('merge-target');
-            btn.classList.add('merge-source');
-            
-            // 添加合并事件
-            btn.onclick = async () => {
-              if (confirm('确定要将此文件夹合并到选中的目标文件夹吗？此操作不可撤销。')) {
-                const sourceId = btn.getAttribute('data-folder-id');
-                const response = await chrome.runtime.sendMessage({
-                  action: 'mergeFolders',
-                  sourceId: sourceId,
-                  targetId: targetId
-                });
-                
-                if (response.success) {
-                  updateSaveStatus('文件夹合并成功', 'success');
-                  // 重新扫描显示最新状态
-                  scanDuplicateFolders();
-                } else {
-                  updateSaveStatus(response.message, 'error');
-                }
-              }
-            };
-          }
-        });
-      });
-    });
-  }
-  
-  // 自动合并重复目录
-  async function autoMergeDuplicateFolders() {
-    try {
-      autoMergeDuplicateFoldersBtn.disabled = true;
-      autoMergeDuplicateFoldersBtn.textContent = '正在合并...';
-      
-      const response = await chrome.runtime.sendMessage({ action: 'autoMergeDuplicateFolders' });
-      
-      if (response.success) {
-        updateSaveStatus(response.message, 'success');
-        // 重新扫描显示最新状态
-        await scanDuplicateFolders();
-      } else {
-        updateSaveStatus(response.message, 'error');
-      }
-    } catch (error) {
-      console.error('自动合并重复目录时出错:', error);
-      updateSaveStatus('自动合并重复目录时出错: ' + error.message, 'error');
-    } finally {
-      autoMergeDuplicateFoldersBtn.disabled = false;
-      autoMergeDuplicateFoldersBtn.textContent = '自动合并所有重复目录';
-    }
-  }
 
   // 处理AI整理进度更新
   function updateAIOrganizeProgress(data) {
@@ -1799,9 +1571,394 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  // 載入學習統計數據
+  function loadLearningStats() {
+    chrome.storage.local.get(['falsePositives', 'learnedValidDomains'], function(result) {
+      const falsePositives = result.falsePositives || [];
+      const learnedDomains = result.learnedValidDomains || [];
+
+      // 更新統計數字
+      if (falsePositiveCount) {
+        falsePositiveCount.textContent = falsePositives.length;
+      }
+      if (learnedDomainsCount) {
+        learnedDomainsCount.textContent = learnedDomains.length;
+      }
+
+      // 分析狀態碼分佈
+      analyzeStatusCodes(falsePositives);
+
+      // 分析域名分佈
+      analyzeDomains(falsePositives);
+
+      // 顯示學習的域名列表
+      if (learnedDomainsList && learnedDomains.length > 0) {
+        learnedDomainsList.innerHTML = '<div class="learned-domains-header">已學習的有效域名（自動跳過檢測）：</div>';
+
+        learnedDomains.forEach(domain => {
+          const domainItem = document.createElement('div');
+          domainItem.className = 'learned-domain-item';
+          domainItem.innerHTML = `
+            <span class="domain-badge">🎓</span>
+            <span class="domain-name">${domain}</span>
+          `;
+          learnedDomainsList.appendChild(domainItem);
+        });
+      } else if (learnedDomainsList) {
+        learnedDomainsList.innerHTML = '';
+      }
+    });
+  }
+
+  // 分析狀態碼分佈
+  function analyzeStatusCodes(falsePositives) {
+    if (!statusCodeAnalysis || falsePositives.length === 0) {
+      if (statusCodeAnalysis) {
+        statusCodeAnalysis.innerHTML = '<div class="empty-placeholder">暫無數據</div>';
+      }
+      return;
+    }
+
+    // 統計每個狀態碼的出現次數
+    const statusCounts = {};
+    falsePositives.forEach(record => {
+      const status = record.status || 'Unknown';
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
+
+    // 按出現次數排序
+    const sortedStatuses = Object.entries(statusCounts)
+      .sort((a, b) => b[1] - a[1]);
+
+    // 顯示結果
+    statusCodeAnalysis.innerHTML = '';
+    sortedStatuses.forEach(([status, count]) => {
+      const percentage = ((count / falsePositives.length) * 100).toFixed(1);
+      const statusItem = document.createElement('div');
+      statusItem.className = 'analysis-item';
+      statusItem.innerHTML = `
+        <div class="analysis-item-header">
+          <span class="status-badge">${status}</span>
+          <span class="count-badge">${count} 次 (${percentage}%)</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+        </div>
+      `;
+      statusCodeAnalysis.appendChild(statusItem);
+    });
+  }
+
+  // 分析域名分佈
+  function analyzeDomains(falsePositives) {
+    if (!domainAnalysis || falsePositives.length === 0) {
+      if (domainAnalysis) {
+        domainAnalysis.innerHTML = '<div class="empty-placeholder">暫無數據</div>';
+      }
+      return;
+    }
+
+    // 統計每個域名的出現次數
+    const domainCounts = {};
+    falsePositives.forEach(record => {
+      const hostname = record.hostname || 'Unknown';
+      domainCounts[hostname] = (domainCounts[hostname] || 0) + 1;
+    });
+
+    // 按出現次數排序，取前 10 名
+    const sortedDomains = Object.entries(domainCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+
+    // 顯示結果
+    domainAnalysis.innerHTML = '';
+    sortedDomains.forEach(([domain, count], index) => {
+      const percentage = ((count / falsePositives.length) * 100).toFixed(1);
+      const domainItem = document.createElement('div');
+      domainItem.className = 'analysis-item';
+      domainItem.innerHTML = `
+        <div class="analysis-item-header">
+          <span class="rank-badge">#${index + 1}</span>
+          <span class="domain-badge">${domain}</span>
+          <span class="count-badge">${count} 次 (${percentage}%)</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+        </div>
+      `;
+      domainAnalysis.appendChild(domainItem);
+    });
+  }
+
+  // 匯出學習數據
+  function exportLearningData() {
+    chrome.storage.local.get(['falsePositives', 'learnedValidDomains'], function(result) {
+      const falsePositives = result.falsePositives || [];
+      const learnedDomains = result.learnedValidDomains || [];
+
+      // 準備匯出數據
+      const exportData = {
+        exportDate: new Date().toISOString(),
+        totalRecords: falsePositives.length,
+        learnedDomains: learnedDomains,
+        falsePositives: falsePositives,
+        analysis: {
+          statusCodes: analyzeStatusCodesForExport(falsePositives),
+          topDomains: analyzeDomainsForExport(falsePositives)
+        }
+      };
+
+      // 創建並下載 JSON 文件
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bookmark-ai-learning-data-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      updateSaveStatus('學習數據已匯出', 'success');
+    });
+  }
+
+  // 分析狀態碼（用於匯出）
+  function analyzeStatusCodesForExport(falsePositives) {
+    const statusCounts = {};
+    falsePositives.forEach(record => {
+      const status = record.status || 'Unknown';
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
+    return Object.entries(statusCounts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([status, count]) => ({
+        status,
+        count,
+        percentage: ((count / falsePositives.length) * 100).toFixed(2)
+      }));
+  }
+
+  // 分析域名（用於匯出）
+  function analyzeDomainsForExport(falsePositives) {
+    const domainCounts = {};
+    falsePositives.forEach(record => {
+      const hostname = record.hostname || 'Unknown';
+      domainCounts[hostname] = (domainCounts[hostname] || 0) + 1;
+    });
+    return Object.entries(domainCounts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([domain, count]) => ({
+        domain,
+        count,
+        percentage: ((count / falsePositives.length) * 100).toFixed(2)
+      }));
+  }
+
+  // 清除學習數據
+  function clearLearningData() {
+    chrome.storage.local.set({
+      falsePositives: [],
+      learnedValidDomains: []
+    }, function() {
+      updateSaveStatus('學習數據已清除', 'success');
+      loadLearningStats(); // 重新載入統計數據
+    });
+  }
+
+  // 查找舊書籤
+  function findOldBookmarks() {
+    updateSaveStatus('正在查找6個月前的書籤...', '');
+    findOldBookmarksBtn.disabled = true;
+    findOldBookmarksBtn.textContent = '掃描中...';
+
+    // 清空舊列表
+    oldBookmarksList.innerHTML = '<div class="empty-placeholder">正在掃描舊書籤，請稍候...</div>';
+    oldBookmarksSection.style.display = 'block';
+
+    chrome.runtime.sendMessage({ action: 'findOldBookmarks', monthsThreshold: 6 }, function(response) {
+      findOldBookmarksBtn.disabled = false;
+      findOldBookmarksBtn.textContent = '查找6個月前書籤';
+
+      if (response.success) {
+        updateSaveStatus(response.message, 'success');
+        loadOldBookmarks(response.oldBookmarks);
+      } else {
+        updateSaveStatus(response.message || '查找舊書籤失敗', 'error');
+        oldBookmarksList.innerHTML = '<div class="empty-placeholder">查找失敗</div>';
+      }
+    });
+  }
+
+  // 載入舊書籤列表
+  function loadOldBookmarks(oldBookmarks) {
+    if (!oldBookmarks || oldBookmarks.length === 0) {
+      oldBookmarksList.innerHTML = '<div class="empty-placeholder">沒有找到6個月前的舊書籤</div>';
+      removeAllOldBtn.style.display = 'none';
+      return;
+    }
+
+    oldBookmarksList.innerHTML = '';
+    removeAllOldBtn.style.display = 'inline-block';
+
+    oldBookmarks.forEach(function(bookmark) {
+      const linkItem = document.createElement('div');
+      linkItem.className = 'link-item';
+
+      const path = bookmark.path && bookmark.path.length > 0
+        ? bookmark.path.join(' > ')
+        : '根目錄';
+
+      linkItem.innerHTML = `
+        <span class="link-title" title="${bookmark.title}">${bookmark.title || '無標題'}</span>
+        <a class="link-url" href="${bookmark.url}" target="_blank" title="${bookmark.url}">${bookmark.url}</a>
+        <span class="link-date">${bookmark.dateAddedFormatted}</span>
+        <span class="link-date ${!bookmark.lastVisitTime ? 'never-visited' : ''}">${bookmark.lastVisitFormatted}</span>
+        <span class="link-action">
+          <button class="btn small remove-old-link" data-id="${bookmark.id}">刪除</button>
+        </span>
+      `;
+
+      oldBookmarksList.appendChild(linkItem);
+    });
+
+    // 添加刪除按鈕事件
+    document.querySelectorAll('.remove-old-link').forEach(button => {
+      button.addEventListener('click', function() {
+        const bookmarkId = this.getAttribute('data-id');
+        removeOldBookmark(bookmarkId);
+      });
+    });
+  }
+
+  // 刪除單個舊書籤
+  function removeOldBookmark(bookmarkId) {
+    chrome.runtime.sendMessage(
+      {
+        action: 'removeBookmark',
+        bookmarkId: bookmarkId
+      },
+      function(response) {
+        if (response.success) {
+          updateSaveStatus('書籤已刪除', 'success');
+
+          // 從存儲中移除
+          chrome.storage.local.get(['oldBookmarks'], function(result) {
+            const oldBookmarks = result.oldBookmarks || [];
+            const updatedBookmarks = oldBookmarks.filter(b => b.id !== bookmarkId);
+
+            chrome.storage.local.set({ oldBookmarks: updatedBookmarks }, function() {
+              loadOldBookmarks(updatedBookmarks);
+            });
+          });
+        } else {
+          updateSaveStatus(response.message || '刪除書籤失敗', 'error');
+        }
+      }
+    );
+  }
+
+  // 刪除所有舊書籤
+  function removeAllOldBookmarks() {
+    chrome.storage.local.get(['oldBookmarks'], function(result) {
+      const oldBookmarks = result.oldBookmarks || [];
+
+      if (oldBookmarks.length === 0) {
+        return;
+      }
+
+      updateSaveStatus('正在刪除所有舊書籤...', '');
+
+      const bookmarkIds = oldBookmarks.map(b => b.id);
+
+      chrome.runtime.sendMessage(
+        {
+          action: 'removeOldBookmarks',
+          bookmarkIds: bookmarkIds
+        },
+        function(response) {
+          if (response.success) {
+            updateSaveStatus(response.message, 'success');
+
+            // 清空存儲
+            chrome.storage.local.set({ oldBookmarks: [] }, function() {
+              oldBookmarksList.innerHTML = '<div class="empty-placeholder">所有舊書籤已刪除</div>';
+              removeAllOldBtn.style.display = 'none';
+            });
+          } else {
+            updateSaveStatus(response.message || '刪除舊書籤失敗', 'error');
+          }
+        }
+      );
+    });
+  }
+
+  // 載入近期書籤
+  function loadRecentBookmarks() {
+    const limit = parseInt(recentBookmarksLimit.value) || 10;
+
+    recentBookmarksList.innerHTML = '<div class="empty-placeholder">正在載入...</div>';
+    refreshRecentBookmarksBtn.disabled = true;
+    refreshRecentBookmarksBtn.textContent = '載入中...';
+
+    chrome.runtime.sendMessage(
+      {
+        action: 'getRecentBookmarks',
+        limit: limit
+      },
+      function(response) {
+        refreshRecentBookmarksBtn.disabled = false;
+        refreshRecentBookmarksBtn.textContent = '重新載入';
+
+        if (response.success && response.bookmarks) {
+          displayRecentBookmarks(response.bookmarks);
+        } else {
+          recentBookmarksList.innerHTML = '<div class="empty-placeholder">載入失敗</div>';
+        }
+      }
+    );
+  }
+
+  // 顯示近期書籤
+  function displayRecentBookmarks(bookmarks) {
+    if (!bookmarks || bookmarks.length === 0) {
+      recentBookmarksList.innerHTML = '<div class="empty-placeholder">沒有書籤</div>';
+      return;
+    }
+
+    recentBookmarksList.innerHTML = '';
+
+    bookmarks.forEach((bookmark, index) => {
+      const bookmarkItem = document.createElement('div');
+      bookmarkItem.className = 'recent-bookmark-item';
+
+      // 路徑標籤
+      const pathBadge = bookmark.path && bookmark.path.length > 0
+        ? `<span class="path-badge">${bookmark.path.join(' > ')}</span>`
+        : '<span class="path-badge">根目錄</span>';
+
+      bookmarkItem.innerHTML = `
+        <div class="recent-bookmark-content">
+          <div class="recent-bookmark-header">
+            <span class="bookmark-index">#${index + 1}</span>
+            <a href="${bookmark.url}" target="_blank" class="bookmark-link" title="${bookmark.title}">
+              <span class="bookmark-title">${bookmark.summary}</span>
+            </a>
+          </div>
+          <div class="recent-bookmark-meta">
+            ${pathBadge}
+            <span class="date-badge">${bookmark.dateAddedFormatted}</span>
+          </div>
+        </div>
+      `;
+
+      recentBookmarksList.appendChild(bookmarkItem);
+    });
+  }
+
   // 初始化各个部分
   initSettings();
-  
+
   // 加载保存的AI分析结果
   loadAIOrganizeResults();
 });

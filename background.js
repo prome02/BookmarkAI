@@ -189,6 +189,42 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         });
       });
       return true;
+
+    case 'updateKnownValidDomains':
+      updateKnownValidDomains(request.domains).then(result => {
+        sendResponse(result);
+      }).catch(error => {
+        console.error('更新已知有效域名列表出錯:', error);
+        sendResponse({ success: false, message: '更新已知有效域名列表出錯: ' + error.message });
+      });
+      return true;
+
+    case 'findOldBookmarks':
+      findOldBookmarks(request.monthsThreshold).then(result => {
+        sendResponse(result);
+      }).catch(error => {
+        console.error('查找舊書籤出錯:', error);
+        sendResponse({ success: false, message: '查找舊書籤出錯: ' + error.message });
+      });
+      return true;
+
+    case 'removeOldBookmarks':
+      removeOldBookmarks(request.bookmarkIds).then(result => {
+        sendResponse(result);
+      }).catch(error => {
+        console.error('刪除舊書籤出錯:', error);
+        sendResponse({ success: false, message: '刪除舊書籤出錯: ' + error.message });
+      });
+      return true;
+
+    case 'getRecentBookmarks':
+      getRecentBookmarks(request.limit).then(result => {
+        sendResponse(result);
+      }).catch(error => {
+        console.error('獲取最新書籤出錯:', error);
+        sendResponse({ success: false, message: '獲取最新書籤出錯: ' + error.message });
+      });
+      return true;
   }
 });
 
@@ -435,16 +471,23 @@ async function checkInvalidLinks() {
     isProcessing = true;
 
     // 获取所有书签
-    const bookmarks = await getAllBookmarks();
-    
+    const bookmarksResult = await getAllBookmarks();
+
+    if (!bookmarksResult.success) {
+      isProcessing = false;
+      return { success: false, message: bookmarksResult.message };
+    }
+
+    const bookmarks = bookmarksResult.bookmarks;
+
     // 获取已存在的无效链接数据
     const invalidLinksData = await chrome.storage.local.get(['invalidLinks']);
     let invalidLinks = invalidLinksData.invalidLinks || [];
-    
+
     // 获取忽略的域名列表
     const ignoredDomainsData = await chrome.storage.local.get(['ignoredDomains']);
     const ignoredDomains = ignoredDomainsData.ignoredDomains || [];
-    
+
     // 过滤出需要检查的书签，排除忽略的域名
     const bookmarksToCheck = bookmarks.filter(bookmark => {
       if (!bookmark.url) return false;
@@ -1072,21 +1115,63 @@ function levenshteinDistance(str1, str2) {
 // 检查链接有效性
 async function checkLinkValidity(bookmark) {
   try {
+    const url = new URL(bookmark.url);
+    const hostname = url.hostname.toLowerCase();
+
+    // 一些已知的有效但难以检测的域名（需要登入或有CORS限制）
+    const knownValidDomains = [
+      'localhost', '127.0.0.1',
+      'chrome.google.com', 'chrome://extensions',
+      'webmail.', 'mail.',
+      'internal.', 'intranet.',
+      'dashboard.',
+      'kaggle.com',  // Kaggle 需要登入且有CORS限制
+      'github.com',  // GitHub 有時會阻擋爬蟲
+      'linkedin.com', // LinkedIn 需要登入
+      'twitter.com', 'x.com', // Twitter/X 需要登入
+      'facebook.com', // Facebook 需要登入
+      'instagram.com' // Instagram 需要登入
+    ];
+
+    // 從存儲中獲取學習的有效域名列表
+    const learnedData = await chrome.storage.local.get(['learnedValidDomains']);
+    const learnedDomains = learnedData.learnedValidDomains || [];
+
+    // 合併已知域名和學習域名
+    const allKnownDomains = [...knownValidDomains, ...learnedDomains];
+
+    // 检查是否为特殊域名或學習的有效域名
+    const isSpecialDomain = allKnownDomains.some(domain =>
+      hostname.includes(domain) || url.protocol === 'file:' ||
+      url.protocol === 'chrome:' || url.protocol === 'edge:' ||
+      url.protocol === 'about:' || url.protocol === 'chrome-extension:'
+    );
+
+    if (isSpecialDomain) {
+      // 判斷是否為學習的域名
+      const isLearned = learnedDomains.some(domain => hostname.includes(domain));
+      return {
+        bookmark,
+        valid: true, // 假定這些特殊域名是有效的
+        status: isLearned ? 'Skipped (Learned Domain)' : 'Skipped (Known Domain)'
+      };
+    }
+
     // 一些网站可能会拒绝HEAD请求，但接受GET请求
     // 因此我们先尝试HEAD请求，如果失败，再尝试GET请求
     try {
-      // 首先尝试HEAD请求
+      // 首先尝试HEAD请求，使用更真實的 User-Agent
       const headResponse = await fetch(bookmark.url, {
         method: 'HEAD',
         redirect: 'follow',
-        // 使用10秒超时
         signal: AbortSignal.timeout(10000),
-        // 一些网站需要User-Agent头
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; BookmarkAI/1.0; +https://github.com/)'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
         }
       });
-      
+
       if (headResponse.ok) {
         return {
           bookmark,
@@ -1094,26 +1179,93 @@ async function checkLinkValidity(bookmark) {
           status: headResponse.status
         };
       }
-      
-      // 特殊情况处理：有些网站返回403而不是实际状态
-      if (headResponse.status === 403) {
-        // 尝试GET请求
+
+      // 改善的狀態碼判斷邏輯
+      const status = headResponse.status;
+
+      // 403 Forbidden - 通常是反爬蟲機制，但網站可能是有效的
+      // 嘗試 GET 請求，如果也失敗，則標記為「可能有效但無法驗證」
+      if (status === 403) {
+        try {
+          const getResponse = await fetch(bookmark.url, {
+            method: 'GET',
+            redirect: 'follow',
+            signal: AbortSignal.timeout(10000),
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+              'Referer': url.origin
+            }
+          });
+
+          if (getResponse.ok) {
+            return {
+              bookmark,
+              valid: true,
+              status: getResponse.status
+            };
+          }
+        } catch (getError) {
+          // GET 也失敗，但 403 通常表示網站存在，只是拒絕訪問
+          console.log('403 錯誤，網站可能有反爬蟲機制:', bookmark.url);
+        }
+
+        // 403 標記為「可能有效」，不判定為無效
+        return {
+          bookmark,
+          valid: true, // 改為 true，因為 403 通常表示網站存在
+          status: '403 (Anti-bot)'
+        };
+      }
+
+      // 401 Unauthorized - 需要認證，但網站是有效的
+      if (status === 401) {
+        return {
+          bookmark,
+          valid: true, // 標記為有效，只是需要登入
+          status: '401 (Auth Required)'
+        };
+      }
+
+      // 429 Too Many Requests - 速率限制，網站是有效的
+      if (status === 429) {
+        return {
+          bookmark,
+          valid: true, // 標記為有效，只是被限速
+          status: '429 (Rate Limited)'
+        };
+      }
+
+      // 405 Method Not Allowed - 嘗試 GET 請求
+      if (status === 405) {
         const getResponse = await fetch(bookmark.url, {
           method: 'GET',
           redirect: 'follow',
           signal: AbortSignal.timeout(10000),
           headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; BookmarkAI/1.0; +https://github.com/)'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
           }
         });
-        
+
         return {
           bookmark,
           valid: getResponse.ok,
           status: getResponse.status
         };
       }
-      
+
+      // 500/502/503 - 伺服器錯誤，可能是暫時的，標記為「可能有效」
+      if (status >= 500 && status < 600) {
+        return {
+          bookmark,
+          valid: true, // 標記為有效，可能只是暫時錯誤
+          status: `${status} (Server Error - Temporary)`
+        };
+      }
+
+      // 404 和其他客戶端錯誤 - 這些通常才是真正無效的
       return {
         bookmark,
         valid: headResponse.ok,
@@ -1121,61 +1273,43 @@ async function checkLinkValidity(bookmark) {
       };
     } catch (headError) {
       // HEAD请求失败，尝试GET请求
-      console.log('HEAD请求失败，尝试GET请求:', bookmark.url);
-      
-      const getResponse = await fetch(bookmark.url, {
-        method: 'GET',
-        redirect: 'follow',
-        signal: AbortSignal.timeout(12000),
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; BookmarkAI/1.0; +https://github.com/)'
-        }
-      });
-      
-      return {
-        bookmark,
-        valid: getResponse.ok,
-        status: getResponse.status
-      };
+      console.log('HEAD請求失敗，嘗試GET請求:', bookmark.url, headError.message);
+
+      try {
+        const getResponse = await fetch(bookmark.url, {
+          method: 'GET',
+          redirect: 'follow',
+          signal: AbortSignal.timeout(12000),
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+          }
+        });
+
+        return {
+          bookmark,
+          valid: getResponse.ok,
+          status: getResponse.status
+        };
+      } catch (getError) {
+        // 兩個請求都失敗，拋出錯誤給外層處理
+        throw getError;
+      }
     }
   } catch (error) {
     // 处理网络错误、超时等
     let status = 'Error';
-    
+
     if (error.name === 'TimeoutError') {
       status = 'Timeout';
     } else if (error.name === 'TypeError') {
-      status = 'Network Error';
+      // TypeError 通常表示 CORS 錯誤或網路問題
+      // 對於 CORS 錯誤，網站可能是有效的，只是擴展無法訪問
+      status = 'CORS/Network Error';
+      console.log('CORS 或網路錯誤:', bookmark.url, error.message);
     }
-    
-    // 特殊域名的处理
-    const url = new URL(bookmark.url);
-    const hostname = url.hostname.toLowerCase();
-    
-    // 一些已知的有效但难以检测的域名
-    const knownValidDomains = [
-      'localhost', '127.0.0.1', 
-      'chrome.google.com', 'chrome://extensions',
-      'webmail.', 'mail.', 
-      'internal.', 'intranet.',
-      'dashboard.'
-    ];
-    
-    // 检查是否为本地/内部/特殊域名
-    const isSpecialDomain = knownValidDomains.some(domain => 
-      hostname.includes(domain) || url.protocol === 'file:' || 
-      url.protocol === 'chrome:' || url.protocol === 'edge:' ||
-      url.protocol === 'about:' || url.protocol === 'chrome-extension:'
-    );
-    
-    if (isSpecialDomain) {
-      return {
-        bookmark,
-        valid: true, // 假定这些特殊域名是有效的
-        status: 'Special Domain'
-      };
-    }
-    
+
     return {
       bookmark,
       valid: false,
@@ -1189,15 +1323,41 @@ async function removeIgnoredDomain(domain) {
   try {
     const data = await chrome.storage.local.get(['ignoredDomains']);
     let ignoredDomains = data.ignoredDomains || [];
-    
+
     // 从列表中移除域名
     ignoredDomains = ignoredDomains.filter(d => d !== domain);
-    
+
     await chrome.storage.local.set({ ignoredDomains });
     return { success: true };
   } catch (error) {
     console.error('从忽略列表移除域名出错:', error);
     return { success: false, message: '从忽略列表移除域名出错: ' + error.message };
+  }
+}
+
+// 更新已知有效域名列表（基於學習的誤判數據）
+async function updateKnownValidDomains(newDomains) {
+  try {
+    // 從存儲中獲取現有的學習域名列表
+    const data = await chrome.storage.local.get(['learnedValidDomains']);
+    let learnedDomains = data.learnedValidDomains || [];
+
+    // 添加新的域名（避免重複）
+    newDomains.forEach(domain => {
+      if (!learnedDomains.includes(domain)) {
+        learnedDomains.push(domain);
+      }
+    });
+
+    // 保存更新後的列表
+    await chrome.storage.local.set({ learnedValidDomains: learnedDomains });
+
+    console.log('已更新學習的有效域名列表，當前共有', learnedDomains.length, '個域名');
+
+    return { success: true, domains: learnedDomains };
+  } catch (error) {
+    console.error('更新已知有效域名列表出錯:', error);
+    return { success: false, message: '更新已知有效域名列表出錯: ' + error.message };
   }
 }
 
@@ -1843,6 +2003,288 @@ async function callDeepSeekApi(prompt, apiKey) {
     console.error('调用DeepSeek API出错:', error);
     throw error;
   }
+}
+
+// 查找舊書籤（創建日期和最後訪問日期都超過指定月數）
+async function findOldBookmarks(monthsThreshold = 6) {
+  try {
+    isProcessing = true;
+
+    // 計算截止時間（monthsThreshold 個月前）
+    const thresholdDate = new Date();
+    thresholdDate.setMonth(thresholdDate.getMonth() - monthsThreshold);
+    const thresholdTimestamp = thresholdDate.getTime();
+
+    console.log(`查找 ${monthsThreshold} 個月前的書籤，截止日期:`, thresholdDate);
+
+    // 獲取所有書籤
+    const bookmarksResult = await getAllBookmarks();
+    if (!bookmarksResult.success) {
+      isProcessing = false;
+      return { success: false, message: bookmarksResult.message };
+    }
+
+    const allBookmarks = bookmarksResult.bookmarks;
+    const oldBookmarks = [];
+    let processedCount = 0;
+
+    // 批量處理書籤
+    for (const bookmark of allBookmarks) {
+      processedCount++;
+
+      // 發送進度更新
+      if (processedCount % 10 === 0) {
+        chrome.runtime.sendMessage({
+          action: 'scanProgress',
+          current: processedCount,
+          total: allBookmarks.length,
+          percentage: Math.round((processedCount / allBookmarks.length) * 100)
+        });
+      }
+
+      // 獲取書籤節點以取得創建時間
+      const bookmarkNode = await chrome.bookmarks.get(bookmark.id);
+      if (!bookmarkNode || bookmarkNode.length === 0) continue;
+
+      const node = bookmarkNode[0];
+      const dateAdded = node.dateAdded || 0;
+
+      // 檢查創建日期是否早於閾值
+      if (dateAdded >= thresholdTimestamp) {
+        continue; // 創建日期太新，跳過
+      }
+
+      // 查詢歷史記錄中的最後訪問時間
+      let lastVisitTime = null;
+      try {
+        const visits = await chrome.history.getVisits({ url: bookmark.url });
+        if (visits && visits.length > 0) {
+          // 找出最近一次訪問
+          const sortedVisits = visits.sort((a, b) => b.visitTime - a.visitTime);
+          lastVisitTime = sortedVisits[0].visitTime;
+        }
+      } catch (historyError) {
+        console.log('無法查詢歷史記錄:', bookmark.url, historyError);
+        lastVisitTime = null;
+      }
+
+      // 判斷是否為舊書籤
+      const isOld = !lastVisitTime || lastVisitTime < thresholdTimestamp;
+
+      if (isOld) {
+        oldBookmarks.push({
+          id: bookmark.id,
+          title: bookmark.title,
+          url: bookmark.url,
+          path: bookmark.path,
+          dateAdded: dateAdded,
+          lastVisitTime: lastVisitTime,
+          dateAddedFormatted: new Date(dateAdded).toLocaleDateString(),
+          lastVisitFormatted: lastVisitTime ? new Date(lastVisitTime).toLocaleDateString() : '從未訪問'
+        });
+      }
+    }
+
+    // 保存結果
+    await chrome.storage.local.set({ oldBookmarks });
+
+    isProcessing = false;
+    return {
+      success: true,
+      oldBookmarks: oldBookmarks,
+      message: `找到 ${oldBookmarks.length} 個超過 ${monthsThreshold} 個月未使用的書籤`
+    };
+  } catch (error) {
+    isProcessing = false;
+    console.error('查找舊書籤出錯:', error);
+    return { success: false, message: '查找舊書籤出錯: ' + error.message };
+  }
+}
+
+// 刪除指定的舊書籤
+async function removeOldBookmarks(bookmarkIds) {
+  try {
+    if (!bookmarkIds || bookmarkIds.length === 0) {
+      return { success: false, message: '沒有要刪除的書籤' };
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+    const parentFolders = new Set(); // 記錄書籤的父資料夾
+
+    for (const bookmarkId of bookmarkIds) {
+      try {
+        // 在刪除前獲取父資料夾ID
+        const bookmarkNode = await chrome.bookmarks.get(bookmarkId);
+        if (bookmarkNode && bookmarkNode.length > 0) {
+          const parentId = bookmarkNode[0].parentId;
+          if (parentId) {
+            parentFolders.add(parentId);
+          }
+        }
+
+        await chrome.bookmarks.remove(bookmarkId);
+        successCount++;
+      } catch (error) {
+        console.error(`刪除書籤 ${bookmarkId} 失敗:`, error);
+        errorCount++;
+      }
+    }
+
+    // 刪除完成後，清理空資料夾
+    console.log('開始清理空資料夾...');
+    let emptyFoldersRemoved = 0;
+
+    try {
+      // 使用 removeEmptyFolders 函數來清理空資料夾
+      const result = await removeEmptyFolders();
+      if (result.success) {
+        emptyFoldersRemoved = result.message.match(/已删除 (\d+) 个空文件夹/)?.[1] || 0;
+        console.log(`已清理 ${emptyFoldersRemoved} 個空資料夾`);
+      }
+    } catch (cleanupError) {
+      console.error('清理空資料夾時出錯:', cleanupError);
+    }
+
+    let message = `成功刪除 ${successCount} 個書籤`;
+    if (errorCount > 0) {
+      message += `，${errorCount} 個失敗`;
+    }
+    if (emptyFoldersRemoved > 0) {
+      message += `，並清理了 ${emptyFoldersRemoved} 個空資料夾`;
+    }
+
+    return {
+      success: true,
+      successCount: successCount,
+      errorCount: errorCount,
+      emptyFoldersRemoved: emptyFoldersRemoved,
+      message: message
+    };
+  } catch (error) {
+    console.error('刪除舊書籤出錯:', error);
+    return { success: false, message: '刪除舊書籤出錯: ' + error.message };
+  }
+}
+
+// 獲取最新添加的書籤
+async function getRecentBookmarks(limit = 10) {
+  try {
+    // 獲取所有書籤
+    const bookmarksResult = await getAllBookmarks();
+    if (!bookmarksResult.success) {
+      return { success: false, message: bookmarksResult.message };
+    }
+
+    const allBookmarks = bookmarksResult.bookmarks;
+
+    // 為每個書籤獲取詳細資訊（包含 dateAdded）
+    const bookmarksWithDetails = [];
+
+    for (const bookmark of allBookmarks) {
+      try {
+        const bookmarkNode = await chrome.bookmarks.get(bookmark.id);
+        if (bookmarkNode && bookmarkNode.length > 0) {
+          const node = bookmarkNode[0];
+
+          // 獲取頁面摘要（使用 URL 或標題）
+          let summary = bookmark.title || '';
+          if (summary.length > 50) {
+            summary = summary.substring(0, 50) + '...';
+          }
+
+          bookmarksWithDetails.push({
+            id: bookmark.id,
+            title: bookmark.title,
+            url: bookmark.url,
+            dateAdded: node.dateAdded || 0,
+            dateAddedFormatted: new Date(node.dateAdded).toLocaleString('zh-TW'),
+            summary: summary,
+            path: bookmark.path
+          });
+        }
+      } catch (error) {
+        console.error('獲取書籤詳情失敗:', bookmark.id, error);
+      }
+    }
+
+    // 按創建時間排序（由新到舊）
+    bookmarksWithDetails.sort((a, b) => b.dateAdded - a.dateAdded);
+
+    // 取前 N 筆
+    const recentBookmarks = bookmarksWithDetails.slice(0, limit);
+
+    return {
+      success: true,
+      bookmarks: recentBookmarks,
+      total: recentBookmarks.length
+    };
+  } catch (error) {
+    console.error('獲取最新書籤出錯:', error);
+    return { success: false, message: '獲取最新書籤出錯: ' + error.message };
+  }
+}
+
+// 遞歸刪除空資料夾（從指定資料夾開始檢查）
+async function removeEmptyFoldersRecursive(folderIds) {
+  let removedCount = 0;
+  const processedFolders = new Set();
+
+  async function checkAndRemoveFolder(folderId) {
+    // 避免重複處理
+    if (processedFolders.has(folderId)) {
+      return;
+    }
+    processedFolders.add(folderId);
+
+    // 跳過根資料夾
+    if (folderId === '0' || folderId === '1' || folderId === '2') {
+      return;
+    }
+
+    try {
+      // 獲取資料夾資訊
+      const folderNode = await chrome.bookmarks.get(folderId);
+      if (!folderNode || folderNode.length === 0) {
+        return;
+      }
+
+      const folder = folderNode[0];
+
+      // 如果不是資料夾，跳過
+      if (folder.url) {
+        return;
+      }
+
+      // 檢查是否為空資料夾
+      const children = await chrome.bookmarks.getChildren(folderId);
+
+      if (children.length === 0) {
+        console.log(`刪除空資料夾: ${folder.title} (${folderId})`);
+
+        // 記錄父資料夾ID，稍後檢查
+        const parentId = folder.parentId;
+
+        // 刪除空資料夾
+        await chrome.bookmarks.removeTree(folderId);
+        removedCount++;
+
+        // 遞歸檢查父資料夾是否也變成空的
+        if (parentId) {
+          await checkAndRemoveFolder(parentId);
+        }
+      }
+    } catch (error) {
+      console.error(`檢查資料夾 ${folderId} 時出錯:`, error);
+    }
+  }
+
+  // 檢查所有提供的資料夾
+  for (const folderId of folderIds) {
+    await checkAndRemoveFolder(folderId);
+  }
+
+  return { removedCount };
 }
 
 // 调用自定义API

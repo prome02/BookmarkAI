@@ -1,0 +1,191 @@
+{
+  "exportDate": "2025-09-30T07:44:18.244Z",
+  "totalRecords": 15,
+  "learnedDomains": [
+    "www.perplexity.ai",
+    "tw.tradingview.com"
+  ],
+  "falsePositives": [
+    {
+      "hostname": "www.perplexity.ai",
+      "status": 403,
+      "timestamp": 1759217833352,
+      "url": "https://www.perplexity.ai/"
+    },
+    {
+      "hostname": "tw.tradingview.com",
+      "status": 403,
+      "timestamp": 1759217841572,
+      "url": "https://tw.tradingview.com/chart/GRDd8fxC/"
+    },
+    {
+      "hostname": "grok.com",
+      "status": 403,
+      "timestamp": 1759217845196,
+      "url": "https://grok.com/"
+    },
+    {
+      "hostname": "ebank.tsca.com.tw",
+      "status": 404,
+      "timestamp": 1759217848920,
+      "url": "https://ebank.tsca.com.tw/WebICC/"
+    },
+    {
+      "hostname": "stableaudio.com",
+      "status": 500,
+      "timestamp": 1759217884747,
+      "url": "https://stableaudio.com/"
+    },
+    {
+      "hostname": "medium.com",
+      "status": 404,
+      "timestamp": 1759217886769,
+      "url": "https://medium.com/stackademic/20-python-scripts-that-will-give-you-superpowers-4c6f4b15fe63"
+    },
+    {
+      "hostname": "www.perplexity.ai",
+      "status": 403,
+      "timestamp": 1759217888555,
+      "url": "https://www.perplexity.ai/"
+    },
+    {
+      "hostname": "www.svgrepo.com",
+      "status": 429,
+      "timestamp": 1759217890481,
+      "url": "https://www.svgrepo.com/collection/duotone-oval-interface-icons/"
+    },
+    {
+      "hostname": "tw.tradingview.com",
+      "status": 403,
+      "timestamp": 1759217892837,
+      "url": "https://tw.tradingview.com/chart/GRDd8fxC/"
+    },
+    {
+      "hostname": "www.moneydj.com",
+      "status": 401,
+      "timestamp": 1759217913210,
+      "url": "https://www.moneydj.com/funddj/fundportfolio/yp201070.asp?a=1433914"
+    },
+    {
+      "hostname": "www.perplexity.ai",
+      "status": 403,
+      "timestamp": 1759217915988,
+      "url": "https://www.perplexity.ai/"
+    },
+    {
+      "hostname": "soloist.ai",
+      "status": 404,
+      "timestamp": 1759217939167,
+      "url": "https://soloist.ai/noveladventures"
+    },
+    {
+      "hostname": "gt.topgpt.us",
+      "status": 404,
+      "timestamp": 1759218127001,
+      "url": "https://gt.topgpt.us/tags/news"
+    },
+    {
+      "hostname": "betterprogramming.pub",
+      "status": 404,
+      "timestamp": 1759218219119,
+      "url": "https://betterprogramming.pub/10-jetpack-compose-projects-to-inspire-you-a04ec01ec881"
+    },
+    {
+      "hostname": "www.kobo.com",
+      "status": 404,
+      "timestamp": 1759218230713,
+      "url": "https://www.kobo.com/tw/zh/library?filter=All"
+    }
+  ],
+  "analysis": {
+    "statusCodes": [
+      {
+        "status": "403",
+        "count": 6,
+        "percentage": "40.00"
+      },
+      {
+        "status": "404",
+        "count": 6,
+        "percentage": "40.00"
+      },
+      {
+        "status": "401",
+        "count": 1,
+        "percentage": "6.67"
+      },
+      {
+        "status": "429",
+        "count": 1,
+        "percentage": "6.67"
+      },
+      {
+        "status": "500",
+        "count": 1,
+        "percentage": "6.67"
+      }
+    ],
+    "topDomains": [
+      {
+        "domain": "www.perplexity.ai",
+        "count": 3,
+        "percentage": "20.00"
+      },
+      {
+        "domain": "tw.tradingview.com",
+        "count": 2,
+        "percentage": "13.33"
+      },
+      {
+        "domain": "grok.com",
+        "count": 1,
+        "percentage": "6.67"
+      },
+      {
+        "domain": "ebank.tsca.com.tw",
+        "count": 1,
+        "percentage": "6.67"
+      },
+      {
+        "domain": "stableaudio.com",
+        "count": 1,
+        "percentage": "6.67"
+      },
+      {
+        "domain": "medium.com",
+        "count": 1,
+        "percentage": "6.67"
+      },
+      {
+        "domain": "www.svgrepo.com",
+        "count": 1,
+        "percentage": "6.67"
+      },
+      {
+        "domain": "www.moneydj.com",
+        "count": 1,
+        "percentage": "6.67"
+      },
+      {
+        "domain": "soloist.ai",
+        "count": 1,
+        "percentage": "6.67"
+      },
+      {
+        "domain": "gt.topgpt.us",
+        "count": 1,
+        "percentage": "6.67"
+      },
+      {
+        "domain": "betterprogramming.pub",
+        "count": 1,
+        "percentage": "6.67"
+      },
+      {
+        "domain": "www.kobo.com",
+        "count": 1,
+        "percentage": "6.67"
+      }
+    ]
+  }
+}
