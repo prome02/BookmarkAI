@@ -1,0 +1,784 @@
+{
+  "app_name": {
+    "message": "AI智慧書籤管理器",
+    "description": "應用程式名稱"
+  },
+  "app_description": {
+    "message": "使用AI自動整理書籤，偵測無效和重複連結",
+    "description": "應用程式描述"
+  },
+  "recent_bookmarks_title": {
+    "message": "近期加入書籤",
+    "description": "近期加入書籤區塊標題"
+  },
+  "recent_bookmarks_description": {
+    "message": "顯示最近加入的書籤，快速存取新收藏的內容",
+    "description": "近期加入書籤區塊描述"
+  },
+  "display_count": {
+    "message": "顯示數量:",
+    "description": "顯示數量標籤"
+  },
+  "items": {
+    "message": "$count$ 筆",
+    "description": "筆數顯示",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "refresh": {
+    "message": "重新載入",
+    "description": "重新載入按鈕"
+  },
+  "loading_recent_bookmarks": {
+    "message": "正在載入近期書籤...",
+    "description": "載入近期書籤提示"
+  },
+  "ai_organize_bookmarks": {
+    "message": "AI整理書籤",
+    "description": "AI整理書籤按鈕"
+  },
+  "check_invalid_links": {
+    "message": "偵測無效連結",
+    "description": "偵測無效連結按鈕"
+  },
+  "check_duplicate_links": {
+    "message": "偵測重複連結",
+    "description": "偵測重複連結按鈕"
+  },
+  "settings": {
+    "message": "設定",
+    "description": "設定連結"
+  },
+  "loading": {
+    "message": "正在載入...",
+    "description": "通用載入提示"
+  },
+  "no_bookmarks": {
+    "message": "沒有書籤",
+    "description": "沒有書籤提示"
+  },
+  "root_directory": {
+    "message": "根目錄",
+    "description": "根目錄標籤"
+  },
+  "no_title": {
+    "message": "無標題",
+    "description": "無標題提示"
+  },
+  "delete_bookmark": {
+    "message": "刪除此書籤",
+    "description": "刪除書籤按鈕標題"
+  },
+  "confirm_delete_bookmark": {
+    "message": "確定要刪除此書籤嗎？",
+    "description": "刪除書籤確認對話框"
+  },
+  "organizing": {
+    "message": "整理中...",
+    "description": "整理中狀態"
+  },
+  "organizing_bookmarks": {
+    "message": "正在AI整理書籤...",
+    "description": "AI整理書籤狀態"
+  },
+  "organize_bookmarks_failed": {
+    "message": "AI整理失敗",
+    "description": "AI整理失敗訊息"
+  },
+  "checking": {
+    "message": "偵測中...",
+    "description": "偵測中狀態"
+  },
+  "checking_invalid_links": {
+    "message": "正在偵測無效連結...",
+    "description": "偵測無效連結狀態"
+  },
+  "check_invalid_links_failed": {
+    "message": "偵測無效連結失敗",
+    "description": "偵測無效連結失敗訊息"
+  },
+  "checking_duplicate_links": {
+    "message": "正在偵測重複連結...",
+    "description": "偵測重複連結狀態"
+  },
+  "check_duplicate_links_failed": {
+    "message": "偵測重複連結失敗",
+    "description": "偵測重複連結失敗訊息"
+  },
+  "delete_bookmark_failed": {
+    "message": "刪除書籤失敗: ",
+    "description": "刪除書籤失敗訊息前綴"
+  },
+  "ai_settings": {
+    "message": "AI設定",
+    "description": "AI設定區塊標題"
+  },
+  "ai_api_type": {
+    "message": "AI API類型:",
+    "description": "AI API類型標籤"
+  },
+  "google_gemini_api": {
+    "message": "Google Gemini API",
+    "description": "Google Gemini API選項"
+  },
+  "openai_api": {
+    "message": "OpenAI API",
+    "description": "OpenAI API選項"
+  },
+  "deepseek_api": {
+    "message": "DeepSeek API",
+    "description": "DeepSeek API選項"
+  },
+  "custom_model": {
+    "message": "自訂模型",
+    "description": "自訂模型選項"
+  },
+  "api_endpoint": {
+    "message": "API端點:",
+    "description": "API端點標籤"
+  },
+  "enter_api_endpoint": {
+    "message": "請輸入API端點URL",
+    "description": "API端點輸入框提示"
+  },
+  "api_key": {
+    "message": "API Key:",
+    "description": "API Key標籤"
+  },
+  "enter_api_key": {
+    "message": "請輸入您的API Key",
+    "description": "API Key輸入框提示"
+  },
+  "test_connection": {
+    "message": "測試連線",
+    "description": "測試連線按鈕"
+  },
+  "automation_settings": {
+    "message": "自動化設定",
+    "description": "自動化設定區塊標題"
+  },
+  "scheduled_scans": {
+    "message": "定期掃描:",
+    "description": "定期掃描標籤"
+  },
+  "never": {
+    "message": "從不",
+    "description": "從不選項"
+  },
+  "daily": {
+    "message": "每天",
+    "description": "每天選項"
+  },
+  "weekly": {
+    "message": "每週",
+    "description": "每週選項"
+  },
+  "monthly": {
+    "message": "每月",
+    "description": "每月選項"
+  },
+  "invalid_links_management": {
+    "message": "無效連結管理",
+    "description": "無效連結管理區塊標題"
+  },
+  "title": {
+    "message": "標題",
+    "description": "標題欄位"
+  },
+  "url": {
+    "message": "URL",
+    "description": "URL欄位"
+  },
+  "status": {
+    "message": "狀態",
+    "description": "狀態欄位"
+  },
+  "action": {
+    "message": "操作",
+    "description": "操作欄位"
+  },
+  "not_scanned_invalid_links": {
+    "message": "尚未掃描無效連結",
+    "description": "尚未掃描無效連結提示"
+  },
+  "scanning": {
+    "message": "正在掃描: $percentage$",
+    "description": "掃描進度提示",
+    "placeholders": {
+      "percentage": {
+        "content": "$1"
+      }
+    }
+  },
+  "scan_invalid_links": {
+    "message": "掃描無效連結",
+    "description": "掃描無效連結按鈕"
+  },
+  "find_old_bookmarks": {
+    "message": "尋找6個月前書籤",
+    "description": "尋找舊書籤按鈕"
+  },
+  "delete_all_invalid_links": {
+    "message": "刪除所有無效連結",
+    "description": "刪除所有無效連結按鈕"
+  },
+  "old_bookmarks_management": {
+    "message": "舊書籤管理",
+    "description": "舊書籤管理區塊標題"
+  },
+  "old_bookmarks_description": {
+    "message": "以下書籤建立於6個月前，且最後存取時間也超過6個月（或從未存取）",
+    "description": "舊書籤管理描述"
+  },
+  "creation_date": {
+    "message": "建立日期",
+    "description": "建立日期欄位"
+  },
+  "last_visit": {
+    "message": "最後存取",
+    "description": "最後存取欄位"
+  },
+  "never_visited": {
+    "message": "從未存取",
+    "description": "從未存取提示"
+  },
+  "not_scanned_old_bookmarks": {
+    "message": "尚未掃描舊書籤",
+    "description": "尚未掃描舊書籤提示"
+  },
+  "delete_all_old_bookmarks": {
+    "message": "刪除所有舊書籤",
+    "description": "刪除所有舊書籤按鈕"
+  },
+  "ignored_domains_management": {
+    "message": "忽略域名管理",
+    "description": "忽略域名管理區塊標題"
+  },
+  "ignored_domains_description": {
+    "message": "以下域名在掃描無效連結時將被跳過：",
+    "description": "忽略域名管理描述"
+  },
+  "no_ignored_domains": {
+    "message": "沒有設定忽略的域名",
+    "description": "沒有忽略域名提示"
+  },
+  "remove": {
+    "message": "移除",
+    "description": "移除按鈕"
+  },
+  "false_positive_analysis": {
+    "message": "誤判數據分析",
+    "description": "誤判數據分析區塊標題"
+  },
+  "false_positive_description": {
+    "message": "系統收集您手動標記的誤判數據，用於分析和改善無效連結判斷演算法",
+    "description": "誤判數據分析描述"
+  },
+  "false_positive_count": {
+    "message": "誤判記錄總數",
+    "description": "誤判記錄總數標籤"
+  },
+  "learned_domains_count": {
+    "message": "已學習的有效域名",
+    "description": "已學習域名數量標籤"
+  },
+  "false_positive_status_analysis": {
+    "message": "誤判狀態碼分析",
+    "description": "誤判狀態碼分析標題"
+  },
+  "status_analysis_description": {
+    "message": "統計被誤判的 HTTP 狀態碼，幫助改善判斷邏輯",
+    "description": "狀態碼分析描述"
+  },
+  "no_data": {
+    "message": "暫無數據",
+    "description": "暫無數據提示"
+  },
+  "false_positive_domain_analysis": {
+    "message": "誤判域名統計（Top 10）",
+    "description": "誤判域名統計標題"
+  },
+  "export_analysis_data": {
+    "message": "匯出分析數據",
+    "description": "匯出分析數據按鈕"
+  },
+  "clear_learning_data": {
+    "message": "清除學習數據",
+    "description": "清除學習數據按鈕"
+  },
+  "duplicate_links_management": {
+    "message": "重複連結管理",
+    "description": "重複連結管理區塊標題"
+  },
+  "not_scanned_duplicate_links": {
+    "message": "尚未掃描重複連結",
+    "description": "尚未掃描重複連結提示"
+  },
+  "scan_duplicate_links": {
+    "message": "掃描重複連結",
+    "description": "掃描重複連結按鈕"
+  },
+  "auto_delete_all_duplicates": {
+    "message": "自動刪除所有重複項",
+    "description": "自動刪除重複項按鈕"
+  },
+  "duplicate_group_title": {
+    "message": "重複連結組 #$number$ - $url$",
+    "description": "重複連結組標題",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      },
+      "url": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_selected": {
+    "message": "刪除選中項",
+    "description": "刪除選中項按鈕"
+  },
+  "no_duplicates_found": {
+    "message": "沒有找到重複連結",
+    "description": "沒有重複連結提示"
+  },
+  "ai_organize_results": {
+    "message": "AI整理結果",
+    "description": "AI整理結果區塊標題"
+  },
+  "bookmark_name": {
+    "message": "書籤名稱",
+    "description": "書籤名稱欄位"
+  },
+  "ai_suggested_category": {
+    "message": "AI建議分類",
+    "description": "AI建議分類欄位"
+  },
+  "not_ai_organized": {
+    "message": "尚未進行AI整理",
+    "description": "尚未AI整理提示"
+  },
+  "start_ai_organize": {
+    "message": "開始AI整理",
+    "description": "開始AI整理按鈕"
+  },
+  "regenerate_ai_suggestions": {
+    "message": "重新產生AI建議",
+    "description": "重新產生AI建議按鈕"
+  },
+  "apply_all_suggestions": {
+    "message": "套用所有建議",
+    "description": "套用所有建議按鈕"
+  },
+  "save_settings": {
+    "message": "儲存設定",
+    "description": "儲存設定按鈕"
+  },
+  "settings_saved": {
+    "message": "設定已儲存",
+    "description": "設定儲存成功訊息"
+  },
+  "delete": {
+    "message": "刪除",
+    "description": "刪除按鈕"
+  },
+  "mark_as_valid": {
+    "message": "標記為有效",
+    "description": "標記為有效按鈕"
+  },
+  "preview": {
+    "message": "預覽",
+    "description": "預覽按鈕"
+  },
+  "confirm_apply": {
+    "message": "確認移動",
+    "description": "確認移動按鈕"
+  },
+  "ignore": {
+    "message": "忽略",
+    "description": "忽略按鈕"
+  },
+  "learning_data_exported": {
+    "message": "學習數據已匯出",
+    "description": "學習數據匯出成功訊息"
+  },
+  "learning_data_cleared": {
+    "message": "學習數據已清除",
+    "description": "學習數據清除成功訊息"
+  },
+  "confirm_clear_learning_data": {
+    "message": "確定要清除所有學習數據嗎？這將刪除所有誤判記錄和已學習的域名。此操作不可撤銷。",
+    "description": "清除學習數據確認對話框"
+  },
+  "confirm_delete_all_invalid": {
+    "message": "確定要刪除所有無效連結嗎？此操作不可撤銷。",
+    "description": "刪除所有無效連結確認對話框"
+  },
+  "confirm_delete_all_duplicates": {
+    "message": "確定要自動刪除所有重複項嗎？系統將保留每組中的第一個連結，刪除其餘重複項。此操作不可撤銷。",
+    "description": "刪除所有重複項確認對話框"
+  },
+  "confirm_delete_all_old": {
+    "message": "確定要刪除所有6個月前的舊書籤嗎？此操作不可撤銷。",
+    "description": "刪除所有舊書籤確認對話框"
+  },
+  "confirm_apply_all_suggestions": {
+    "message": "確定要套用所有AI建議的分類嗎？這將移動書籤到對應的資料夾。\n\n注意：\n- 如果目標資料夾不存在，將會自動建立\n- 此操作無法撤銷",
+    "description": "套用所有建議確認對話框"
+  },
+  "no_selected_items": {
+    "message": "沒有選中任何項目",
+    "description": "沒有選中項目錯誤訊息"
+  },
+  "delete_selected_duplicates_failed": {
+    "message": "刪除選中重複項失敗",
+    "description": "刪除選中重複項失敗訊息"
+  },
+  "delete_selected_duplicates_success": {
+    "message": "已成功刪除 $success$/$total$ 個重複項",
+    "description": "刪除選中重複項成功訊息",
+    "placeholders": {
+      "success": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_all_duplicates_success": {
+    "message": "已成功刪除 $success$/$total$ 個重複項",
+    "description": "刪除所有重複項成功訊息",
+    "placeholders": {
+      "success": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_all_invalid_success": {
+    "message": "已成功刪除 $success$/$total$ 個無效連結",
+    "description": "刪除所有無效連結成功訊息",
+    "placeholders": {
+      "success": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_all_old_success": {
+    "message": "已成功刪除 $success$/$total$ 個舊書籤",
+    "description": "刪除所有舊書籤成功訊息",
+    "placeholders": {
+      "success": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "apply_all_suggestions_success": {
+    "message": "已成功移動 $success$/$total$ 個書籤，正在執行附加整理...",
+    "description": "套用所有建議成功訊息",
+    "placeholders": {
+      "success": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "all_operations_completed": {
+    "message": "所有操作已完成: 已套用AI建議、合併重複目錄並刪除空資料夾",
+    "description": "所有操作完成訊息"
+  },
+  "moved_to_category": {
+    "message": "已將書籤移動到 \"$category$\" 資料夾",
+    "description": "移動書籤成功訊息",
+    "placeholders": {
+      "category": {
+        "content": "$1"
+      }
+    }
+  },
+  "move_bookmark_failed": {
+    "message": "移動書籤失敗",
+    "description": "移動書籤失敗訊息"
+  },
+  "suggestion_ignored": {
+    "message": "已忽略建議",
+    "description": "忽略建議成功訊息"
+  },
+  "link_marked_valid": {
+    "message": "連結已標記為有效",
+    "description": "標記連結有效訊息"
+  },
+  "link_marked_valid_domain_added": {
+    "message": "連結已標記為有效，域名已加入忽略清單",
+    "description": "標記連結有效並加入忽略清單訊息"
+  },
+  "link_marked_valid_domain_failed": {
+    "message": "連結已標記為有效，但域名加入失敗",
+    "description": "標記連結有效但域名加入失敗訊息"
+  },
+  "domain_removed": {
+    "message": "已從忽略清單中移除域名: $domain$",
+    "description": "移除域名成功訊息",
+    "placeholders": {
+      "domain": {
+        "content": "$1"
+      }
+    }
+  },
+  "remove_domain_failed": {
+    "message": "移除域名失敗",
+    "description": "移除域名失敗訊息"
+  },
+  "link_deleted": {
+    "message": "連結已刪除",
+    "description": "刪除連結成功訊息"
+  },
+  "delete_link_failed": {
+    "message": "刪除連結失敗",
+    "description": "刪除連結失敗訊息"
+  },
+  "processing": {
+    "message": "處理中...",
+    "description": "處理中狀態"
+  },
+  "testing_connection": {
+    "message": "測試中...",
+    "description": "測試連線中狀態"
+  },
+  "connection_successful": {
+    "message": "API連線成功",
+    "description": "連線成功訊息"
+  },
+  "connection_failed": {
+    "message": "API連線失敗",
+    "description": "連線失敗訊息"
+  },
+  "enter_api_key_prompt": {
+    "message": "請輸入API Key",
+    "description": "API Key輸入提示錯誤訊息"
+  },
+  "enter_custom_endpoint_prompt": {
+    "message": "請輸入自訂API端點",
+    "description": "自訂端點輸入提示錯誤訊息"
+  },
+  "unsupported_api_type": {
+    "message": "不支援的API類型",
+    "description": "不支援API類型錯誤訊息"
+  },
+  "scanning_invalid_links": {
+    "message": "正在偵測無效連結...",
+    "description": "掃描無效連結狀態"
+  },
+  "invalid_links_scan_complete": {
+    "message": "無效連結偵測完成",
+    "description": "無效連結掃描完成訊息"
+  },
+  "invalid_links_scan_failed": {
+    "message": "偵測無效連結失敗",
+    "description": "無效連結掃描失敗訊息"
+  },
+  "scanning_duplicate_links": {
+    "message": "正在偵測重複連結...",
+    "description": "掃描重複連結狀態"
+  },
+  "duplicate_links_scan_complete": {
+    "message": "重複連結偵測完成",
+    "description": "重複連結掃描完成訊息"
+  },
+  "duplicate_links_scan_failed": {
+    "message": "偵測重複連結失敗",
+    "description": "重複連結掃描失敗訊息"
+  },
+  "operation_in_progress": {
+    "message": "另一個操作正在進行中，請稍後再試",
+    "description": "操作進行中錯誤訊息"
+  },
+  "ai_analysis_complete": {
+    "message": "AI分析完成，共有 $count$ 個建議",
+    "description": "AI分析完成訊息",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "ai_analysis_failed": {
+    "message": "整理書籤時出錯",
+    "description": "AI分析失敗訊息"
+  },
+  "ai_analysis_error": {
+    "message": "AI整理失敗: $error$",
+    "description": "AI分析錯誤訊息",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "ai_progress_start": {
+    "message": "開始AI整理書籤",
+    "description": "AI整理開始進度"
+  },
+  "ai_progress_collecting": {
+    "message": "正在收集書籤資料",
+    "description": "收集書籤進度"
+  },
+  "ai_progress_analyzing": {
+    "message": "正在進行AI分析",
+    "description": "AI分析進度"
+  },
+  "ai_progress_organizing": {
+    "message": "正在產生分類建議",
+    "description": "產生建議進度"
+  },
+  "ai_progress_additional": {
+    "message": "執行額外整理步驟...",
+    "description": "額外整理進度"
+  },
+  "ai_progress_complete": {
+    "message": "分析完成",
+    "description": "AI整理完成進度"
+  },
+  "ai_progress_error": {
+    "message": "分析出錯: $error$",
+    "description": "AI整理錯誤進度",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "analysis_timestamp": {
+    "message": "最後分析時間: $time$",
+    "description": "分析時間戳記",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "loaded_saved_results": {
+    "message": "已載入已儲存的分析結果（$time$）",
+    "description": "載入儲存結果訊息",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_regenerate_ai": {
+    "message": "是否先儲存目前的API設定再繼續？",
+    "description": "重新產生AI建議確認訊息"
+  },
+  "ai_organize_error": {
+    "message": "AI整理失敗",
+    "description": "AI整理失敗標題"
+  },
+  "ai_organize_error_details": {
+    "message": "AI整理失敗，請檢查API設定和網路連線",
+    "description": "AI整理失敗詳情"
+  },
+  "complete_title": {
+    "message": "AI分析完成",
+    "description": "AI分析完成標題"
+  },
+  "complete_details": {
+    "message": "已產生 $count$ 個分類建議",
+    "description": "AI分析完成詳情",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "current_location": {
+    "message": "目前位置: $path$",
+    "description": "目前位置顯示",
+    "placeholders": {
+      "path": {
+        "content": "$1"
+      }
+    }
+  },
+  "preview_target": {
+    "message": "➜ 📁 $category$",
+    "description": "預覽目標顯示",
+    "placeholders": {
+      "category": {
+        "content": "$1"
+      }
+    }
+  },
+  "folder_path_icon": {
+    "message": "📍",
+    "description": "資料夾路徑圖示"
+  },
+  "folder_icon": {
+    "message": "📁",
+    "description": "資料夾圖示"
+  },
+  "rank_prefix": {
+    "message": "#$rank$",
+    "description": "排名前綴",
+    "placeholders": {
+      "rank": {
+        "content": "$1"
+      }
+    }
+  },
+  "count_times": {
+    "message": "$count$ 次 ($percentage$%)",
+    "description": "次數和百分比顯示",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "percentage": {
+        "content": "$2"
+      }
+    }
+  },
+  "learned_domain_badge": {
+    "message": "🎓",
+    "description": "學習域名徽章"
+  },
+  "category_count": {
+    "message": "$count$ 個書籤",
+    "description": "分類書籤數量",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "new_category_badge": {
+    "message": "新分類",
+    "description": "新分類徽章"
+  },
+  "confirm_save_settings": {
+    "message": "是否先儲存目前的API設定再繼續？",
+    "description": "儲存設定確認訊息"
+  },
+  "failed": {
+    "message": "失敗",
+    "description": "通用失敗訊息"
+  },
+  "unknown_error": {
+    "message": "未知錯誤",
+    "description": "未知錯誤訊息"
+  }
+}

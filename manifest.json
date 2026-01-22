@@ -3,6 +3,7 @@
   "name": "AI智能书签管理器",
   "version": "1.0",
   "description": "使用AI自动整理书签，检测无效和重复链接",
+  "default_locale": "zh_TW",
   "permissions": [
     "bookmarks",
     "storage",

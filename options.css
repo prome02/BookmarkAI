@@ -215,8 +215,15 @@ input, select {
 
 .duplicate-item {
   display: flex;
-  padding: 6px;
+  padding: 8px 12px;
   border-bottom: 1px solid #eee;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.duplicate-item:hover {
+  background-color: #f8f9fa;
 }
 
 .duplicate-item:last-child {
@@ -225,6 +232,9 @@ input, select {
 
 .duplicate-checkbox {
   margin-right: 8px;
+  width: 14px;
+  height: 14px;
+  transform: scale(0.8);
 }
 
 .duplicate-info {

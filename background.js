@@ -619,8 +619,14 @@ async function checkDuplicateLinks() {
     isProcessing = true;
 
     // 获取所有书签
-    const bookmarks = await getAllBookmarks();
-    
+    const bookmarksResult = await getAllBookmarks();
+    if (!bookmarksResult.success) {
+      isProcessing = false;
+      return { success: false, message: bookmarksResult.message };
+    }
+
+    const bookmarks = bookmarksResult.bookmarks;
+
     // 过滤掉没有URL的书签
     const validBookmarks = bookmarks.filter(bookmark => bookmark.url);
     

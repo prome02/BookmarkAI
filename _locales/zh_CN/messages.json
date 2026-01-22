@@ -1,0 +1,784 @@
+{
+  "app_name": {
+    "message": "AI智能书签管理器",
+    "description": "应用程序名称"
+  },
+  "app_description": {
+    "message": "使用AI自动整理书签，检测无效和重复链接",
+    "description": "应用程序描述"
+  },
+  "recent_bookmarks_title": {
+    "message": "近期加入书签",
+    "description": "近期加入书签区块标题"
+  },
+  "recent_bookmarks_description": {
+    "message": "显示最近添加的书签，快速访问新收藏的内容",
+    "description": "近期加入书签区块描述"
+  },
+  "display_count": {
+    "message": "显示数量:",
+    "description": "显示数量标签"
+  },
+  "items": {
+    "message": "$count$ 笔",
+    "description": "笔数显示",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "refresh": {
+    "message": "重新加载",
+    "description": "重新加载按钮"
+  },
+  "loading_recent_bookmarks": {
+    "message": "正在加载近期书签...",
+    "description": "加载近期书签提示"
+  },
+  "ai_organize_bookmarks": {
+    "message": "AI整理书签",
+    "description": "AI整理书签按钮"
+  },
+  "check_invalid_links": {
+    "message": "检测无效链接",
+    "description": "检测无效链接按钮"
+  },
+  "check_duplicate_links": {
+    "message": "检测重复链接",
+    "description": "检测重复链接按钮"
+  },
+  "settings": {
+    "message": "设置",
+    "description": "设置链接"
+  },
+  "loading": {
+    "message": "正在加载...",
+    "description": "通用加载提示"
+  },
+  "no_bookmarks": {
+    "message": "没有书签",
+    "description": "没有书签提示"
+  },
+  "root_directory": {
+    "message": "根目录",
+    "description": "根目录标签"
+  },
+  "no_title": {
+    "message": "无标题",
+    "description": "无标题提示"
+  },
+  "delete_bookmark": {
+    "message": "删除此书签",
+    "description": "删除书签按钮标题"
+  },
+  "confirm_delete_bookmark": {
+    "message": "确定要删除此书签吗？",
+    "description": "删除书签确认对话框"
+  },
+  "organizing": {
+    "message": "整理中...",
+    "description": "整理中状态"
+  },
+  "organizing_bookmarks": {
+    "message": "正在AI整理书签...",
+    "description": "AI整理书签状态"
+  },
+  "organize_bookmarks_failed": {
+    "message": "AI整理失败",
+    "description": "AI整理失败消息"
+  },
+  "checking": {
+    "message": "检测中...",
+    "description": "检测中状态"
+  },
+  "checking_invalid_links": {
+    "message": "正在检测无效链接...",
+    "description": "检测无效链接状态"
+  },
+  "check_invalid_links_failed": {
+    "message": "检测无效链接失败",
+    "description": "检测无效链接失败消息"
+  },
+  "checking_duplicate_links": {
+    "message": "正在检测重复链接...",
+    "description": "检测重复链接状态"
+  },
+  "check_duplicate_links_failed": {
+    "message": "检测重复链接失败",
+    "description": "检测重复链接失败消息"
+  },
+  "delete_bookmark_failed": {
+    "message": "删除书签失败: ",
+    "description": "删除书签失败消息前缀"
+  },
+  "ai_settings": {
+    "message": "AI设置",
+    "description": "AI设置区块标题"
+  },
+  "ai_api_type": {
+    "message": "AI API类型:",
+    "description": "AI API类型标签"
+  },
+  "google_gemini_api": {
+    "message": "Google Gemini API",
+    "description": "Google Gemini API选项"
+  },
+  "openai_api": {
+    "message": "OpenAI API",
+    "description": "OpenAI API选项"
+  },
+  "deepseek_api": {
+    "message": "DeepSeek API",
+    "description": "DeepSeek API选项"
+  },
+  "custom_model": {
+    "message": "自定义模型",
+    "description": "自定义模型选项"
+  },
+  "api_endpoint": {
+    "message": "API端点:",
+    "description": "API端点标签"
+  },
+  "enter_api_endpoint": {
+    "message": "请输入API端点URL",
+    "description": "API端点输入框提示"
+  },
+  "api_key": {
+    "message": "API Key:",
+    "description": "API Key标签"
+  },
+  "enter_api_key": {
+    "message": "请输入您的API Key",
+    "description": "API Key输入框提示"
+  },
+  "test_connection": {
+    "message": "测试连接",
+    "description": "测试连接按钮"
+  },
+  "automation_settings": {
+    "message": "自动化设置",
+    "description": "自动化设置区块标题"
+  },
+  "scheduled_scans": {
+    "message": "定期扫描:",
+    "description": "定期扫描标签"
+  },
+  "never": {
+    "message": "从不",
+    "description": "从不选项"
+  },
+  "daily": {
+    "message": "每天",
+    "description": "每天选项"
+  },
+  "weekly": {
+    "message": "每周",
+    "description": "每周选项"
+  },
+  "monthly": {
+    "message": "每月",
+    "description": "每月选项"
+  },
+  "invalid_links_management": {
+    "message": "无效链接管理",
+    "description": "无效链接管理区块标题"
+  },
+  "title": {
+    "message": "标题",
+    "description": "标题字段"
+  },
+  "url": {
+    "message": "URL",
+    "description": "URL字段"
+  },
+  "status": {
+    "message": "状态",
+    "description": "状态字段"
+  },
+  "action": {
+    "message": "操作",
+    "description": "操作字段"
+  },
+  "not_scanned_invalid_links": {
+    "message": "尚未扫描无效链接",
+    "description": "尚未扫描无效链接提示"
+  },
+  "scanning": {
+    "message": "正在扫描: $percentage$",
+    "description": "扫描进度提示",
+    "placeholders": {
+      "percentage": {
+        "content": "$1"
+      }
+    }
+  },
+  "scan_invalid_links": {
+    "message": "扫描无效链接",
+    "description": "扫描无效链接按钮"
+  },
+  "find_old_bookmarks": {
+    "message": "查找6个月前书签",
+    "description": "查找旧书签按钮"
+  },
+  "delete_all_invalid_links": {
+    "message": "删除所有无效链接",
+    "description": "删除所有无效链接按钮"
+  },
+  "old_bookmarks_management": {
+    "message": "旧书签管理",
+    "description": "旧书签管理区块标题"
+  },
+  "old_bookmarks_description": {
+    "message": "以下书签创建于6个月前，且最后访问时间也超过6个月（或从未访问）",
+    "description": "旧书签管理描述"
+  },
+  "creation_date": {
+    "message": "创建日期",
+    "description": "创建日期字段"
+  },
+  "last_visit": {
+    "message": "最后访问",
+    "description": "最后访问字段"
+  },
+  "never_visited": {
+    "message": "从未访问",
+    "description": "从未访问提示"
+  },
+  "not_scanned_old_bookmarks": {
+    "message": "尚未扫描旧书签",
+    "description": "尚未扫描旧书签提示"
+  },
+  "delete_all_old_bookmarks": {
+    "message": "删除所有旧书签",
+    "description": "删除所有旧书签按钮"
+  },
+  "ignored_domains_management": {
+    "message": "忽略域名管理",
+    "description": "忽略域名管理区块标题"
+  },
+  "ignored_domains_description": {
+    "message": "以下域名在扫描无效链接时将被跳过：",
+    "description": "忽略域名管理描述"
+  },
+  "no_ignored_domains": {
+    "message": "没有设置忽略的域名",
+    "description": "没有忽略域名提示"
+  },
+  "remove": {
+    "message": "移除",
+    "description": "移除按钮"
+  },
+  "false_positive_analysis": {
+    "message": "误判数据分析",
+    "description": "误判数据分析区块标题"
+  },
+  "false_positive_description": {
+    "message": "系统收集您手动标记的误判数据，用于分析和改善无效链接判断算法",
+    "description": "误判数据分析描述"
+  },
+  "false_positive_count": {
+    "message": "误判记录总数",
+    "description": "误判记录总数标签"
+  },
+  "learned_domains_count": {
+    "message": "已学习的有效域名",
+    "description": "已学习域名数量标签"
+  },
+  "false_positive_status_analysis": {
+    "message": "误判状态码分析",
+    "description": "误判状态码分析标题"
+  },
+  "status_analysis_description": {
+    "message": "统计被误判的 HTTP 状态码，帮助改善判断逻辑",
+    "description": "状态码分析描述"
+  },
+  "no_data": {
+    "message": "暂无数据",
+    "description": "暂无数据提示"
+  },
+  "false_positive_domain_analysis": {
+    "message": "误判域名统计（Top 10）",
+    "description": "误判域名统计标题"
+  },
+  "export_analysis_data": {
+    "message": "导出分析数据",
+    "description": "导出分析数据按钮"
+  },
+  "clear_learning_data": {
+    "message": "清除学习数据",
+    "description": "清除学习数据按钮"
+  },
+  "duplicate_links_management": {
+    "message": "重复链接管理",
+    "description": "重复链接管理区块标题"
+  },
+  "not_scanned_duplicate_links": {
+    "message": "尚未扫描重复链接",
+    "description": "尚未扫描重复链接提示"
+  },
+  "scan_duplicate_links": {
+    "message": "扫描重复链接",
+    "description": "扫描重复链接按钮"
+  },
+  "auto_delete_all_duplicates": {
+    "message": "自动删除所有重复项",
+    "description": "自动删除重复项按钮"
+  },
+  "duplicate_group_title": {
+    "message": "重复链接组 #$number$ - $url$",
+    "description": "重复链接组标题",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      },
+      "url": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_selected": {
+    "message": "删除选中项",
+    "description": "删除选中项按钮"
+  },
+  "no_duplicates_found": {
+    "message": "没有找到重复链接",
+    "description": "没有重复链接提示"
+  },
+  "ai_organize_results": {
+    "message": "AI整理结果",
+    "description": "AI整理结果区块标题"
+  },
+  "bookmark_name": {
+    "message": "书签名称",
+    "description": "书签名称字段"
+  },
+  "ai_suggested_category": {
+    "message": "AI建议分类",
+    "description": "AI建议分类字段"
+  },
+  "not_ai_organized": {
+    "message": "尚未进行AI整理",
+    "description": "尚未AI整理提示"
+  },
+  "start_ai_organize": {
+    "message": "开始AI整理",
+    "description": "开始AI整理按钮"
+  },
+  "regenerate_ai_suggestions": {
+    "message": "重新生成AI建议",
+    "description": "重新生成AI建议按钮"
+  },
+  "apply_all_suggestions": {
+    "message": "应用所有建议",
+    "description": "应用所有建议按钮"
+  },
+  "save_settings": {
+    "message": "保存设置",
+    "description": "保存设置按钮"
+  },
+  "settings_saved": {
+    "message": "设置已保存",
+    "description": "设置保存成功消息"
+  },
+  "delete": {
+    "message": "删除",
+    "description": "删除按钮"
+  },
+  "mark_as_valid": {
+    "message": "标记为有效",
+    "description": "标记为有效按钮"
+  },
+  "preview": {
+    "message": "预览",
+    "description": "预览按钮"
+  },
+  "confirm_apply": {
+    "message": "确认移动",
+    "description": "确认移动按钮"
+  },
+  "ignore": {
+    "message": "忽略",
+    "description": "忽略按钮"
+  },
+  "learning_data_exported": {
+    "message": "学习数据已导出",
+    "description": "学习数据导出成功消息"
+  },
+  "learning_data_cleared": {
+    "message": "学习数据已清除",
+    "description": "学习数据清除成功消息"
+  },
+  "confirm_clear_learning_data": {
+    "message": "确定要清除所有学习数据吗？这将删除所有误判记录和已学习的域名。此操作不可撤销。",
+    "description": "清除学习数据确认对话框"
+  },
+  "confirm_delete_all_invalid": {
+    "message": "确定要删除所有无效链接吗？此操作不可撤销。",
+    "description": "删除所有无效链接确认对话框"
+  },
+  "confirm_delete_all_duplicates": {
+    "message": "确定要自动删除所有重复项吗？系统将保留每组中的第一个链接，删除其余重复项。此操作不可撤销。",
+    "description": "删除所有重复项确认对话框"
+  },
+  "confirm_delete_all_old": {
+    "message": "确定要删除所有6个月前的旧书签吗？此操作不可撤销。",
+    "description": "删除所有旧书签确认对话框"
+  },
+  "confirm_apply_all_suggestions": {
+    "message": "确定要应用所有AI建议的分类吗？这将移动书签到对应的文件夹。\n\n注意：\n- 如果目标文件夹不存在，将会自动创建\n- 此操作无法撤销",
+    "description": "应用所有建议确认对话框"
+  },
+  "no_selected_items": {
+    "message": "没有选中任何项目",
+    "description": "没有选中项目错误消息"
+  },
+  "delete_selected_duplicates_failed": {
+    "message": "删除选中重复项失败",
+    "description": "删除选中重复项失败消息"
+  },
+  "delete_selected_duplicates_success": {
+    "message": "已成功删除 $success$/$total$ 个重复项",
+    "description": "删除选中重复项成功消息",
+    "placeholders": {
+      "success": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_all_duplicates_success": {
+    "message": "已成功删除 $success$/$total$ 个重复项",
+    "description": "删除所有重复项成功消息",
+    "placeholders": {
+      "success": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_all_invalid_success": {
+    "message": "已成功删除 $success$/$total$ 个无效链接",
+    "description": "删除所有无效链接成功消息",
+    "placeholders": {
+      "success": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "delete_all_old_success": {
+    "message": "已成功删除 $success$/$total$ 个旧书签",
+    "description": "删除所有旧书签成功消息",
+    "placeholders": {
+      "success": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "apply_all_suggestions_success": {
+    "message": "已成功移动 $success$/$total$ 个书签，正在执行附加整理...",
+    "description": "应用所有建议成功消息",
+    "placeholders": {
+      "success": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "all_operations_completed": {
+    "message": "所有操作已完成: 已应用AI建议、合并重复目录并删除空文件夹",
+    "description": "所有操作完成消息"
+  },
+  "moved_to_category": {
+    "message": "已将书签移动到 \"$category$\" 文件夹",
+    "description": "移动书签成功消息",
+    "placeholders": {
+      "category": {
+        "content": "$1"
+      }
+    }
+  },
+  "move_bookmark_failed": {
+    "message": "移动书签失败",
+    "description": "移动书签失败消息"
+  },
+  "suggestion_ignored": {
+    "message": "已忽略建议",
+    "description": "忽略建议成功消息"
+  },
+  "link_marked_valid": {
+    "message": "链接已标记为有效",
+    "description": "标记链接有效消息"
+  },
+  "link_marked_valid_domain_added": {
+    "message": "链接已标记为有效，域名已加入忽略列表",
+    "description": "标记链接有效并加入忽略列表消息"
+  },
+  "link_marked_valid_domain_failed": {
+    "message": "链接已标记为有效，但域名加入失败",
+    "description": "标记链接有效但域名加入失败消息"
+  },
+  "domain_removed": {
+    "message": "已从忽略列表中移除域名: $domain$",
+    "description": "移除域名成功消息",
+    "placeholders": {
+      "domain": {
+        "content": "$1"
+      }
+    }
+  },
+  "remove_domain_failed": {
+    "message": "移除域名失败",
+    "description": "移除域名失败消息"
+  },
+  "link_deleted": {
+    "message": "链接已删除",
+    "description": "删除链接成功消息"
+  },
+  "delete_link_failed": {
+    "message": "删除链接失败",
+    "description": "删除链接失败消息"
+  },
+  "processing": {
+    "message": "处理中...",
+    "description": "处理中状态"
+  },
+  "testing_connection": {
+    "message": "测试中...",
+    "description": "测试连接中状态"
+  },
+  "connection_successful": {
+    "message": "API连接成功",
+    "description": "连接成功消息"
+  },
+  "connection_failed": {
+    "message": "API连接失败",
+    "description": "连接失败消息"
+  },
+  "enter_api_key_prompt": {
+    "message": "请输入API Key",
+    "description": "API Key输入提示错误消息"
+  },
+  "enter_custom_endpoint_prompt": {
+    "message": "请输入自定义API端点",
+    "description": "自定义端点输入提示错误消息"
+  },
+  "unsupported_api_type": {
+    "message": "不支持的API类型",
+    "description": "不支持API类型错误消息"
+  },
+  "scanning_invalid_links": {
+    "message": "正在检测无效链接...",
+    "description": "扫描无效链接状态"
+  },
+  "invalid_links_scan_complete": {
+    "message": "无效链接检测完成",
+    "description": "无效链接扫描完成消息"
+  },
+  "invalid_links_scan_failed": {
+    "message": "检测无效链接失败",
+    "description": "无效链接扫描失败消息"
+  },
+  "scanning_duplicate_links": {
+    "message": "正在检测重复链接...",
+    "description": "扫描重复链接状态"
+  },
+  "duplicate_links_scan_complete": {
+    "message": "重复链接检测完成",
+    "description": "重复链接扫描完成消息"
+  },
+  "duplicate_links_scan_failed": {
+    "message": "检测重复链接失败",
+    "description": "重复链接扫描失败消息"
+  },
+  "operation_in_progress": {
+    "message": "另一个操作正在进行中，请稍后再试",
+    "description": "操作进行中错误消息"
+  },
+  "ai_analysis_complete": {
+    "message": "AI分析完成，共有 $count$ 个建议",
+    "description": "AI分析完成消息",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "ai_analysis_failed": {
+    "message": "整理书签时出错",
+    "description": "AI分析失败消息"
+  },
+  "ai_analysis_error": {
+    "message": "AI整理失败: $error$",
+    "description": "AI分析错误消息",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "ai_progress_start": {
+    "message": "开始AI整理书签",
+    "description": "AI整理开始进度"
+  },
+  "ai_progress_collecting": {
+    "message": "正在收集书签数据",
+    "description": "收集书签进度"
+  },
+  "ai_progress_analyzing": {
+    "message": "正在进行AI分析",
+    "description": "AI分析进度"
+  },
+  "ai_progress_organizing": {
+    "message": "正在生成分类建议",
+    "description": "生成建议进度"
+  },
+  "ai_progress_additional": {
+    "message": "执行额外整理步骤...",
+    "description": "额外整理进度"
+  },
+  "ai_progress_complete": {
+    "message": "分析完成",
+    "description": "AI整理完成进度"
+  },
+  "ai_progress_error": {
+    "message": "分析出错: $error$",
+    "description": "AI整理错误进度",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "analysis_timestamp": {
+    "message": "最后分析时间: $time$",
+    "description": "分析时间戳记",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "loaded_saved_results": {
+    "message": "已加载已保存的分析结果（$time$）",
+    "description": "加载保存结果消息",
+    "placeholders": {
+      "time": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirm_regenerate_ai": {
+    "message": "是否先保存当前的API设置再继续？",
+    "description": "重新生成AI建议确认消息"
+  },
+  "ai_organize_error": {
+    "message": "AI整理失败",
+    "description": "AI整理失败标题"
+  },
+  "ai_organize_error_details": {
+    "message": "AI整理失败，请检查API设置和网络连接",
+    "description": "AI整理失败详情"
+  },
+  "complete_title": {
+    "message": "AI分析完成",
+    "description": "AI分析完成标题"
+  },
+  "complete_details": {
+    "message": "已生成 $count$ 个分类建议",
+    "description": "AI分析完成详情",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "current_location": {
+    "message": "当前位置: $path$",
+    "description": "当前位置显示",
+    "placeholders": {
+      "path": {
+        "content": "$1"
+      }
+    }
+  },
+  "preview_target": {
+    "message": "➜ 📁 $category$",
+    "description": "预览目标显示",
+    "placeholders": {
+      "category": {
+        "content": "$1"
+      }
+    }
+  },
+  "folder_path_icon": {
+    "message": "📍",
+    "description": "文件夹路径图标"
+  },
+  "folder_icon": {
+    "message": "📁",
+    "description": "文件夹图标"
+  },
+  "rank_prefix": {
+    "message": "#$rank$",
+    "description": "排名前缀",
+    "placeholders": {
+      "rank": {
+        "content": "$1"
+      }
+    }
+  },
+  "count_times": {
+    "message": "$count$ 次 ($percentage$%)",
+    "description": "次数和百分比显示",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      },
+      "percentage": {
+        "content": "$2"
+      }
+    }
+  },
+  "learned_domain_badge": {
+    "message": "🎓",
+    "description": "学习域名徽章"
+  },
+  "category_count": {
+    "message": "$count$ 个书签",
+    "description": "分类书签数量",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "new_category_badge": {
+    "message": "新分类",
+    "description": "新分类徽章"
+  },
+  "confirm_save_settings": {
+    "message": "是否先保存当前的API设置再继续？",
+    "description": "保存设置确认消息"
+  },
+  "failed": {
+    "message": "失败",
+    "description": "通用失败消息"
+  },
+  "unknown_error": {
+    "message": "未知错误",
+    "description": "未知错误消息"
+  }
+}

@@ -716,7 +716,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const duplicateLinks = result.duplicateLinks || [];
       
       if (duplicateLinks.length === 0) {
-        duplicateLinksList.innerHTML = '<div class="empty-placeholder">尚未扫描重复链接</div>';
+        duplicateLinksList.innerHTML = '<div class="empty-placeholder">沒有找到重複鏈接</div>';
         return;
       }
       
@@ -1919,6 +1919,24 @@ document.addEventListener('DOMContentLoaded', function() {
     );
   }
 
+  // 刪除書籤
+  function deleteBookmark(bookmarkId) {
+    chrome.runtime.sendMessage(
+      {
+        action: 'removeBookmark',
+        bookmarkId: bookmarkId
+      },
+      function (response) {
+        if (response.success) {
+          // 重新載入近期書籤列表
+          loadRecentBookmarks();
+        } else {
+          updateSaveStatus('刪除書籤失敗: ' + (response.message || '未知錯誤'), 'error');
+        }
+      }
+    );
+  }
+
   // 顯示近期書籤
   function displayRecentBookmarks(bookmarks) {
     if (!bookmarks || bookmarks.length === 0) {
@@ -1944,6 +1962,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <a href="${bookmark.url}" target="_blank" class="bookmark-link" title="${bookmark.title}">
               <span class="bookmark-title">${bookmark.summary}</span>
             </a>
+            <button class="delete-bookmark-btn" data-bookmark-id="${bookmark.id}" title="刪除此書籤">刪除</button>
           </div>
           <div class="recent-bookmark-meta">
             ${pathBadge}
@@ -1952,12 +1971,18 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       `;
 
+      // 為此書籤項目的刪除按鈕添加事件監聽器
+      bookmarkItem.querySelector('.delete-bookmark-btn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const bookmarkId = this.getAttribute('data-bookmark-id');
+        if (confirm('確定要刪除此書籤嗎？')) {
+          deleteBookmark(bookmarkId);
+        }
+      });
+
       recentBookmarksList.appendChild(bookmarkItem);
     });
   }
-
-  // 初始化各个部分
-  initSettings();
 
   // 加载保存的AI分析结果
   loadAIOrganizeResults();

@@ -13,9 +13,9 @@
       <div class="recent-bookmarks-controls">
         <label for="recentBookmarksLimit">顯示數量:</label>
         <select id="recentBookmarksLimit" class="limit-select">
-          <option value="5" selected>5 筆</option>
+          <option value="5">5 筆</option>
           <option value="10">10 筆</option>
-          <option value="15">15 筆</option>
+          <option value="15" selected>15 筆</option>
           <option value="20">20 筆</option>
         </select>
         <button id="refreshRecentBookmarksBtn" class="btn primary">重新載入</button>
@@ -40,6 +40,71 @@
     </div>
   </div>
   
+  <script>
+    // 本地化初始化函數
+    function initializeLocalization() {
+      // 頁面標題
+      document.title = chrome.i18n.getMessage('app_name');
+
+      // 主標題
+      const mainTitle = document.querySelector('h1');
+      if (mainTitle) {
+        mainTitle.textContent = chrome.i18n.getMessage('app_name');
+      }
+
+      // 近期加入書籤區塊
+      const recentBookmarksTitle = document.querySelector('h2');
+      if (recentBookmarksTitle && recentBookmarksTitle.textContent.includes('近期加入書籤')) {
+        recentBookmarksTitle.textContent = chrome.i18n.getMessage('recent_bookmarks_title');
+      }
+
+      const recentBookmarksDesc = document.querySelector('.section-description');
+      if (recentBookmarksDesc) {
+        recentBookmarksDesc.textContent = chrome.i18n.getMessage('recent_bookmarks_description');
+      }
+
+      // 顯示數量標籤
+      const displayCountLabel = document.querySelector('label[for="recentBookmarksLimit"]');
+      if (displayCountLabel) {
+        displayCountLabel.textContent = chrome.i18n.getMessage('display_count');
+      }
+
+      // 重新載入按鈕
+      const refreshBtn = document.getElementById('refreshRecentBookmarksBtn');
+      if (refreshBtn) {
+        refreshBtn.textContent = chrome.i18n.getMessage('refresh');
+      }
+
+      // AI整理書籤按鈕
+      const organizeBtn = document.getElementById('organizeBtn');
+      if (organizeBtn) {
+        organizeBtn.textContent = chrome.i18n.getMessage('ai_organize_bookmarks');
+      }
+
+      // 檢測無效鏈接按鈕
+      const checkInvalidBtn = document.getElementById('checkInvalidBtn');
+      if (checkInvalidBtn) {
+        checkInvalidBtn.textContent = chrome.i18n.getMessage('check_invalid_links');
+      }
+
+      // 檢測重複鏈接按鈕
+      const checkDuplicateBtn = document.getElementById('checkDuplicateBtn');
+      if (checkDuplicateBtn) {
+        checkDuplicateBtn.textContent = chrome.i18n.getMessage('check_duplicate_links');
+      }
+
+      // 設定連結
+      const settingsLink = document.querySelector('.footer a');
+      if (settingsLink) {
+        settingsLink.textContent = chrome.i18n.getMessage('settings');
+      }
+    }
+
+    // 頁面載入完成後初始化本地化
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeLocalization();
+    });
+  </script>
   <script src="popup.js"></script>
 </body>
-</html> 
+</html>
